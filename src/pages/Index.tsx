@@ -229,7 +229,7 @@ const Index = () => {
         </section>
 
         <section className="container mx-auto px-6 pb-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {tools.map((tool, index) => (
               <ToolCard
                 key={index}
