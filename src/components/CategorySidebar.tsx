@@ -1,4 +1,14 @@
 import { Home, ShoppingCart, Sparkles, TrendingUp, Megaphone, Search, FolderOpen, Zap, Code2, FileCode, Pencil, Palette, Layers, Users, Mail, Chrome, Briefcase, BarChart3, Bot, Share2, FileText, DollarSign, ShoppingBag, Layout, Smartphone, Video, Activity, Globe, MessageSquare, FileEdit } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const categories = [
@@ -35,25 +45,33 @@ const categories = [
 ];
 
 export const CategorySidebar = () => {
+  const { open } = useSidebar();
+  
   return (
-    <aside className="w-56 border-r border-border bg-sidebar h-screen sticky top-0">
-      <ScrollArea className="h-full">
-        <nav className="p-4 space-y-1">
-          {categories.map((category) => {
-            const Icon = category.icon;
-            return (
-              <a
-                key={category.path}
-                href={category.path}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors"
-              >
-                <Icon className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">{category.name}</span>
-              </a>
-            );
-          })}
-        </nav>
-      </ScrollArea>
-    </aside>
+    <Sidebar className="border-r border-border" collapsible="offcanvas">
+      <SidebarContent>
+        <ScrollArea className="h-full">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {categories.map((category) => {
+                  const Icon = category.icon;
+                  return (
+                    <SidebarMenuItem key={category.path}>
+                      <SidebarMenuButton asChild>
+                        <a href={category.path} className="flex items-center gap-3">
+                          <Icon className="h-4 w-4 flex-shrink-0" />
+                          {open && <span className="truncate text-sm">{category.name}</span>}
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </ScrollArea>
+      </SidebarContent>
+    </Sidebar>
   );
 };
