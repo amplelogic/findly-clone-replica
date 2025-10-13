@@ -1,4 +1,5 @@
 import { Home, ShoppingCart, Sparkles, TrendingUp, Megaphone, Search, FolderOpen, Zap, Code2, FileCode, Pencil, Palette, Layers, Users, Mail, Chrome, Briefcase, BarChart3, Bot, Share2, FileText, DollarSign, ShoppingBag, Layout, Smartphone, Video, Activity, Globe, MessageSquare, FileEdit } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -59,10 +60,10 @@ export const CategorySidebar = () => {
                   return (
                     <SidebarMenuItem key={category.path}>
                       <SidebarMenuButton asChild>
-                        <a href={category.path} className="flex items-center gap-3">
+                        <Link to={category.path} className="flex items-center gap-3">
                           <Icon className="h-4 w-4 flex-shrink-0" />
                           {open && <span className="truncate text-sm">{category.name}</span>}
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
