@@ -1,4 +1,4 @@
-import { Home, ShoppingCart, Sparkles, TrendingUp, Megaphone, Search, FolderOpen, Zap, Code2, FileCode, Pencil, Palette, Layers, Users, Mail, Chrome, Briefcase, BarChart3, Bot, Share2, FileText, DollarSign, ShoppingBag, Layout, Smartphone, Video, Activity, Globe, MessageSquare, FileEdit } from "lucide-react";
+import { Home, Search, Megaphone, Mail, Share2, BarChart3, PenTool, Target, TrendingUp, MousePointerClick, FileText, Video, Palette, Users, Globe, Smartphone, MessageSquare, Zap, Link2, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Sidebar,
@@ -13,36 +13,26 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const categories = [
-  { name: "All", icon: Home, path: "/" },
-  { name: "For Sale", icon: ShoppingCart, path: "/categories/for-sale" },
-  { name: "Artificial intelligence", icon: Sparkles, path: "/categories/ai" },
-  { name: "Productivity", icon: TrendingUp, path: "/categories/productivity" },
-  { name: "Marketing", icon: Megaphone, path: "/categories/marketing" },
-  { name: "SEO", icon: Search, path: "/categories/seo" },
-  { name: "Directories", icon: FolderOpen, path: "/categories/directories" },
-  { name: "Automation", icon: Zap, path: "/categories/automation" },
-  { name: "Boilerplates", icon: Code2, path: "/categories/boilerplates" },
-  { name: "Developer tools", icon: FileCode, path: "/categories/developer-tools" },
-  { name: "Writing", icon: Pencil, path: "/categories/writing" },
-  { name: "Design", icon: Palette, path: "/categories/design" },
-  { name: "No code", icon: Layers, path: "/categories/no-code" },
-  { name: "Community", icon: Users, path: "/categories/community" },
-  { name: "Email marketing", icon: Mail, path: "/categories/email-marketing" },
-  { name: "Chrome extensions", icon: Chrome, path: "/categories/chrome-extensions" },
-  { name: "Freelancer tools", icon: Briefcase, path: "/categories/freelancer-tools" },
-  { name: "Analytics", icon: BarChart3, path: "/categories/analytics" },
-  { name: "AI agents", icon: Bot, path: "/categories/ai-agents" },
-  { name: "Social media", icon: Share2, path: "/categories/social-media" },
-  { name: "Content creation", icon: FileText, path: "/categories/content-creation" },
-  { name: "Fintech", icon: DollarSign, path: "/categories/fintech" },
-  { name: "E-commerce", icon: ShoppingBag, path: "/categories/ecommerce" },
-  { name: "Website builders", icon: Layout, path: "/categories/website-builders" },
-  { name: "iOS", icon: Smartphone, path: "/categories/ios" },
-  { name: "Video", icon: Video, path: "/categories/video" },
-  { name: "Monitoring", icon: Activity, path: "/categories/monitoring" },
-  { name: "Remote work", icon: Globe, path: "/categories/remote-work" },
-  { name: "Chatbots", icon: MessageSquare, path: "/categories/chatbots" },
-  { name: "Blogging", icon: FileEdit, path: "/categories/blogging" },
+  { name: "All Tools", icon: Home, path: "/" },
+  { name: "SEO Tools", icon: Search, path: "/categories/seo-tools" },
+  { name: "Social Media Marketing", icon: Share2, path: "/categories/social-media-marketing" },
+  { name: "Email Marketing", icon: Mail, path: "/categories/email-marketing" },
+  { name: "Content Marketing", icon: FileText, path: "/categories/content-marketing" },
+  { name: "PPC & Advertising", icon: MousePointerClick, path: "/categories/ppc-advertising" },
+  { name: "Analytics & Tracking", icon: BarChart3, path: "/categories/analytics-tracking" },
+  { name: "Marketing Automation", icon: Zap, path: "/categories/marketing-automation" },
+  { name: "Copywriting Tools", icon: PenTool, path: "/categories/copywriting-tools" },
+  { name: "Video Marketing", icon: Video, path: "/categories/video-marketing" },
+  { name: "Influencer Marketing", icon: Users, path: "/categories/influencer-marketing" },
+  { name: "Affiliate Marketing", icon: Link2, path: "/categories/affiliate-marketing" },
+  { name: "Conversion Optimization", icon: Target, path: "/categories/conversion-optimization" },
+  { name: "Lead Generation", icon: TrendingUp, path: "/categories/lead-generation" },
+  { name: "Design & Creatives", icon: Palette, path: "/categories/design-creatives" },
+  { name: "Website Builders", icon: Globe, path: "/categories/website-builders" },
+  { name: "E-commerce Marketing", icon: ShoppingBag, path: "/categories/ecommerce-marketing" },
+  { name: "Mobile Marketing", icon: Smartphone, path: "/categories/mobile-marketing" },
+  { name: "Chatbots & Messaging", icon: MessageSquare, path: "/categories/chatbots-messaging" },
+  { name: "Campaign Management", icon: Megaphone, path: "/categories/campaign-management" },
 ];
 
 export const CategorySidebar = () => {
