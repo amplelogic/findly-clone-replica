@@ -7,32 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, LogOut, Pencil, Trash2, X, Home } from "lucide-react";
+import { Plus, LogOut, Pencil, Trash2, Home, FileText } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 interface Tool {
   id: string;
@@ -45,238 +27,131 @@ interface Tool {
   pricing: string | null;
 }
 
-const categories = [
-  "SEO Tools",
-  "Social Media Marketing",
-  "Email Marketing",
-  "Content Marketing",
-  "PPC Advertising",
-  "Analytics Tracking",
-  "Marketing Automation",
-  "Copywriting Tools",
-  "Video Marketing",
-  "Influencer Marketing",
-  "Affiliate Marketing",
-  "Conversion Optimization",
-  "Lead Generation",
-  "Design Creatives",
-  "Website Builders",
-  "Ecommerce Marketing",
-  "Mobile Marketing",
-  "Chatbots Messaging",
-  "Campaign Management",
-];
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string | null;
+}
+
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  featured_image: string | null;
+  published: boolean;
+  published_at: string | null;
+}
 
 const Admin = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tools, setTools] = useState<Tool[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [isToolDialogOpen, setIsToolDialogOpen] = useState(false);
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [isBlogDialogOpen, setIsBlogDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteType, setDeleteType] = useState<"tool" | "category" | "blog">("tool");
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    logo: "",
-    badge: "",
-    category: "",
-    website_url: "",
-    pricing: "",
-  });
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedBlogPost, setSelectedBlogPost] = useState<BlogPost | null>(null);
+  const [toolFormData, setToolFormData] = useState({ name: "", description: "", logo: "", badge: "", category: "", website_url: "", pricing: "" });
+  const [categoryFormData, setCategoryFormData] = useState({ name: "", slug: "", icon: "" });
+  const [blogFormData, setBlogFormData] = useState({ title: "", slug: "", content: "", excerpt: "", featured_image: "", published: false });
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  const defaultCategories = ["SEO Tools", "Social Media Marketing", "Email Marketing", "Content Marketing", "PPC Advertising", "Analytics Tracking", "Marketing Automation", "Copywriting Tools", "Video Marketing", "Influencer Marketing", "Affiliate Marketing", "Conversion Optimization", "Lead Generation", "Design Creatives", "Website Builders", "Ecommerce Marketing", "Mobile Marketing", "Chatbots Messaging", "Campaign Management"];
 
-  useEffect(() => {
-    if (isAdmin) {
-      fetchTools();
-    }
-  }, [isAdmin]);
+  useEffect(() => { checkAuth(); }, []);
+  useEffect(() => { if (isAdmin) { fetchTools(); fetchCategories(); fetchBlogPosts(); } }, [isAdmin]);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      navigate("/auth");
-      return;
-    }
-
+    if (!session) { navigate("/auth"); return; }
     setUser(session.user);
-
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", session.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (!roles) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have admin permissions.",
-        variant: "destructive",
-      });
-      navigate("/");
-      return;
-    }
-
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id).eq("role", "admin").maybeSingle();
+    if (!roles) { toast({ title: "Access Denied", description: "You don't have admin permissions.", variant: "destructive" }); navigate("/"); return; }
     setIsAdmin(true);
     setLoading(false);
   };
 
-  const fetchTools = async () => {
-    const { data, error } = await supabase
-      .from("tools")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const fetchTools = async () => { const { data } = await supabase.from("tools").select("*").order("created_at", { ascending: false }); if (data) setTools(data); };
+  const fetchCategories = async () => { const { data } = await supabase.from("categories").select("*").order("name"); if (data) setCategories(data); };
+  const fetchBlogPosts = async () => { const { data } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false }); if (data) setBlogPosts(data); };
 
-    if (!error && data) {
-      setTools(data);
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      description: "",
-      logo: "",
-      badge: "",
-      category: "",
-      website_url: "",
-      pricing: "",
-    });
-    setSelectedTool(null);
-  };
-
-  const openAddDialog = () => {
-    resetForm();
-    setIsDialogOpen(true);
-  };
-
-  const openEditDialog = (tool: Tool) => {
-    setSelectedTool(tool);
-    setFormData({
-      name: tool.name,
-      description: tool.description,
-      logo: tool.logo,
-      badge: tool.badge || "",
-      category: tool.category || "",
-      website_url: tool.website_url || "",
-      pricing: tool.pricing || "",
-    });
-    setIsDialogOpen(true);
-  };
-
-  const openDeleteDialog = (tool: Tool) => {
-    setSelectedTool(tool);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleToolSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
     try {
       if (selectedTool) {
-        // Update existing tool
-        const { error } = await supabase
-          .from("tools")
-          .update({
-            name: formData.name,
-            description: formData.description,
-            logo: formData.logo,
-            badge: formData.badge || null,
-            category: formData.category || null,
-            website_url: formData.website_url || null,
-            pricing: formData.pricing || null,
-          })
-          .eq("id", selectedTool.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Success!",
-          description: "Tool has been updated successfully.",
-        });
+        await supabase.from("tools").update({ name: toolFormData.name, description: toolFormData.description, logo: toolFormData.logo, badge: toolFormData.badge || null, category: toolFormData.category || null, website_url: toolFormData.website_url || null, pricing: toolFormData.pricing || null }).eq("id", selectedTool.id);
       } else {
-        // Add new tool
-        const { error } = await supabase.from("tools").insert({
-          name: formData.name,
-          description: formData.description,
-          logo: formData.logo,
-          badge: formData.badge || null,
-          category: formData.category || null,
-          website_url: formData.website_url || null,
-          pricing: formData.pricing || null,
-        });
-
-        if (error) throw error;
-
-        toast({
-          title: "Success!",
-          description: "Tool has been added successfully.",
-        });
+        await supabase.from("tools").insert({ name: toolFormData.name, description: toolFormData.description, logo: toolFormData.logo, badge: toolFormData.badge || null, category: toolFormData.category || null, website_url: toolFormData.website_url || null, pricing: toolFormData.pricing || null });
       }
-
-      setIsDialogOpen(false);
-      resetForm();
+      toast({ title: "Success!", description: `Tool ${selectedTool ? "updated" : "added"} successfully.` });
+      setIsToolDialogOpen(false);
+      setSelectedTool(null);
+      setToolFormData({ name: "", description: "", logo: "", badge: "", category: "", website_url: "", pricing: "" });
       fetchTools();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    } catch (error: any) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+  };
+
+  const handleCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (selectedCategory) {
+        await supabase.from("categories").update({ name: categoryFormData.name, slug: categoryFormData.slug, icon: categoryFormData.icon || null }).eq("id", selectedCategory.id);
+      } else {
+        await supabase.from("categories").insert({ name: categoryFormData.name, slug: categoryFormData.slug, icon: categoryFormData.icon || null });
+      }
+      toast({ title: "Success!", description: `Category ${selectedCategory ? "updated" : "added"} successfully.` });
+      setIsCategoryDialogOpen(false);
+      setSelectedCategory(null);
+      setCategoryFormData({ name: "", slug: "", icon: "" });
+      fetchCategories();
+    } catch (error: any) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
+  };
+
+  const handleBlogSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const postData = { title: blogFormData.title, slug: blogFormData.slug, content: blogFormData.content, excerpt: blogFormData.excerpt || null, featured_image: blogFormData.featured_image || null, published: blogFormData.published, published_at: blogFormData.published ? new Date().toISOString() : null, author_id: user.id };
+      if (selectedBlogPost) {
+        await supabase.from("blog_posts").update(postData).eq("id", selectedBlogPost.id);
+      } else {
+        await supabase.from("blog_posts").insert(postData);
+      }
+      toast({ title: "Success!", description: `Blog post ${selectedBlogPost ? "updated" : "created"} successfully.` });
+      setIsBlogDialogOpen(false);
+      setSelectedBlogPost(null);
+      setBlogFormData({ title: "", slug: "", content: "", excerpt: "", featured_image: "", published: false });
+      fetchBlogPosts();
+    } catch (error: any) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
   };
 
   const handleDelete = async () => {
-    if (!selectedTool) return;
-
     try {
-      const { error } = await supabase
-        .from("tools")
-        .delete()
-        .eq("id", selectedTool.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Deleted!",
-        description: "Tool has been deleted successfully.",
-      });
-
+      if (deleteType === "tool" && selectedTool) {
+        await supabase.from("tools").delete().eq("id", selectedTool.id);
+        fetchTools();
+      } else if (deleteType === "category" && selectedCategory) {
+        await supabase.from("categories").delete().eq("id", selectedCategory.id);
+        fetchCategories();
+      } else if (deleteType === "blog" && selectedBlogPost) {
+        await supabase.from("blog_posts").delete().eq("id", selectedBlogPost.id);
+        fetchBlogPosts();
+      }
+      toast({ title: "Deleted!", description: "Item deleted successfully." });
       setIsDeleteDialogOpen(false);
-      setSelectedTool(null);
-      fetchTools();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    } catch (error: any) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    );
-  }
-
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><p className="text-muted-foreground">Loading...</p></div>;
   if (!isAdmin) return null;
 
   return (
@@ -285,242 +160,156 @@ const Admin = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Admin Panel</h1>
-            <p className="text-sm text-muted-foreground mt-1">Manage your digital marketing tools</p>
+            <p className="text-sm text-muted-foreground mt-1">Manage tools, categories & blog</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/")}>
-              <Home className="h-4 w-4 mr-2" />
-              Home
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <Button variant="outline" onClick={() => navigate("/")}><Home className="h-4 w-4 mr-2" />Home</Button>
+            <Button variant="outline" onClick={async () => { await supabase.auth.signOut(); navigate("/"); }}><LogOut className="h-4 w-4 mr-2" />Logout</Button>
           </div>
         </div>
 
-        <Card className="mb-6">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-lg font-semibold">Tools ({tools.length})</CardTitle>
-            <Button onClick={openAddDialog}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Tool
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Logo</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="hidden md:table-cell">Category</TableHead>
-                    <TableHead className="hidden sm:table-cell">Badge</TableHead>
-                    <TableHead className="hidden lg:table-cell">Pricing</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tools.map((tool) => (
-                    <TableRow key={tool.id}>
-                      <TableCell>
-                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-lg">
-                          {tool.logo}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">{tool.name}</TableCell>
-                      <TableCell className="hidden md:table-cell text-muted-foreground">
-                        {tool.category || "-"}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {tool.badge ? (
-                          <span className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary">
-                            {tool.badge}
-                          </span>
-                        ) : (
-                          "-"
-                        )}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell text-muted-foreground">
-                        {tool.pricing || "-"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openEditDialog(tool)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openDeleteDialog(tool)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="tools" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="tools">Tools</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="blog">Blog</TabsTrigger>
+          </TabsList>
 
-        {/* Add/Edit Dialog */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <TabsContent value="tools">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Tools ({tools.length})</CardTitle>
+                <Button onClick={() => { setSelectedTool(null); setToolFormData({ name: "", description: "", logo: "", badge: "", category: "", website_url: "", pricing: "" }); setIsToolDialogOpen(true); }}><Plus className="h-4 w-4 mr-2" />Add Tool</Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader><TableRow><TableHead>Logo</TableHead><TableHead>Name</TableHead><TableHead className="hidden md:table-cell">Category</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                  <TableBody>
+                    {tools.map((tool) => (
+                      <TableRow key={tool.id}>
+                        <TableCell><div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-lg">{tool.logo}</div></TableCell>
+                        <TableCell className="font-medium">{tool.name}</TableCell>
+                        <TableCell className="hidden md:table-cell text-muted-foreground">{tool.category || "-"}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => { setSelectedTool(tool); setToolFormData({ name: tool.name, description: tool.description, logo: tool.logo, badge: tool.badge || "", category: tool.category || "", website_url: tool.website_url || "", pricing: tool.pricing || "" }); setIsToolDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => { setSelectedTool(tool); setDeleteType("tool"); setIsDeleteDialogOpen(true); }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="categories">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Categories ({categories.length})</CardTitle>
+                <Button onClick={() => { setSelectedCategory(null); setCategoryFormData({ name: "", slug: "", icon: "" }); setIsCategoryDialogOpen(true); }}><Plus className="h-4 w-4 mr-2" />Add Category</Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Slug</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                  <TableBody>
+                    {categories.map((cat) => (
+                      <TableRow key={cat.id}>
+                        <TableCell className="font-medium">{cat.name}</TableCell>
+                        <TableCell className="text-muted-foreground">{cat.slug}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => { setSelectedCategory(cat); setCategoryFormData({ name: cat.name, slug: cat.slug, icon: cat.icon || "" }); setIsCategoryDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => { setSelectedCategory(cat); setDeleteType("category"); setIsDeleteDialogOpen(true); }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="blog">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Blog Posts ({blogPosts.length})</CardTitle>
+                <Button onClick={() => { setSelectedBlogPost(null); setBlogFormData({ title: "", slug: "", content: "", excerpt: "", featured_image: "", published: false }); setIsBlogDialogOpen(true); }}><Plus className="h-4 w-4 mr-2" />New Post</Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader><TableRow><TableHead>Title</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                  <TableBody>
+                    {blogPosts.map((post) => (
+                      <TableRow key={post.id}>
+                        <TableCell className="font-medium">{post.title}</TableCell>
+                        <TableCell><span className={`px-2 py-1 text-xs rounded ${post.published ? 'bg-green-500/10 text-green-600' : 'bg-yellow-500/10 text-yellow-600'}`}>{post.published ? 'Published' : 'Draft'}</span></TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => { setSelectedBlogPost(post); setBlogFormData({ title: post.title, slug: post.slug, content: post.content, excerpt: post.excerpt || "", featured_image: post.featured_image || "", published: post.published }); setIsBlogDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => { setSelectedBlogPost(post); setDeleteType("blog"); setIsDeleteDialogOpen(true); }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        <Dialog open={isToolDialogOpen} onOpenChange={setIsToolDialogOpen}>
           <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                {selectedTool ? (
-                  <>
-                    <Pencil className="h-5 w-5" />
-                    Edit Tool
-                  </>
-                ) : (
-                  <>
-                    <Plus className="h-5 w-5" />
-                    Add New Tool
-                  </>
-                )}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <DialogHeader><DialogTitle>{selectedTool ? "Edit Tool" : "Add Tool"}</DialogTitle></DialogHeader>
+            <form onSubmit={handleToolSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Tool Name *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="logo">Logo (emoji) *</Label>
-                  <Input
-                    id="logo"
-                    value={formData.logo}
-                    onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                    placeholder="🚀"
-                    required
-                  />
-                </div>
+                <div className="space-y-2"><Label>Name *</Label><Input value={toolFormData.name} onChange={(e) => setToolFormData({ ...toolFormData, name: e.target.value })} required /></div>
+                <div className="space-y-2"><Label>Logo (emoji) *</Label><Input value={toolFormData.logo} onChange={(e) => setToolFormData({ ...toolFormData, logo: e.target.value })} required /></div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  required
-                  rows={3}
-                />
-              </div>
-
+              <div className="space-y-2"><Label>Description *</Label><Textarea value={toolFormData.description} onChange={(e) => setToolFormData({ ...toolFormData, description: e.target.value })} required rows={3} /></div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value) => setFormData({ ...formData, category: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="badge">Badge</Label>
-                  <Select
-                    value={formData.badge}
-                    onValueChange={(value) => setFormData({ ...formData, badge: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select badge" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="New">New</SelectItem>
-                      <SelectItem value="Popular">Popular</SelectItem>
-                      <SelectItem value="Deal">Deal</SelectItem>
-                      <SelectItem value="Free">Free</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <div className="space-y-2"><Label>Category</Label><Select value={toolFormData.category} onValueChange={(v) => setToolFormData({ ...toolFormData, category: v })}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{defaultCategories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label>Badge</Label><Select value={toolFormData.badge} onValueChange={(v) => setToolFormData({ ...toolFormData, badge: v })}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="New">New</SelectItem><SelectItem value="Popular">Popular</SelectItem><SelectItem value="Deal">Deal</SelectItem><SelectItem value="Free">Free</SelectItem></SelectContent></Select></div>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="website_url">Website URL</Label>
-                  <Input
-                    id="website_url"
-                    type="url"
-                    value={formData.website_url}
-                    onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                    placeholder="https://example.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="pricing">Pricing</Label>
-                  <Select
-                    value={formData.pricing}
-                    onValueChange={(value) => setFormData({ ...formData, pricing: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select pricing" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Free">Free</SelectItem>
-                      <SelectItem value="Freemium">Freemium</SelectItem>
-                      <SelectItem value="Paid">Paid</SelectItem>
-                      <SelectItem value="Pay-per-use">Pay-per-use</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <div className="space-y-2"><Label>Website URL</Label><Input type="url" value={toolFormData.website_url} onChange={(e) => setToolFormData({ ...toolFormData, website_url: e.target.value })} /></div>
+                <div className="space-y-2"><Label>Pricing</Label><Select value={toolFormData.pricing} onValueChange={(v) => setToolFormData({ ...toolFormData, pricing: v })}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="Free">Free</SelectItem><SelectItem value="Freemium">Freemium</SelectItem><SelectItem value="Paid">Paid</SelectItem></SelectContent></Select></div>
               </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Saving..." : selectedTool ? "Update Tool" : "Add Tool"}
-                </Button>
-              </div>
+              <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setIsToolDialogOpen(false)}>Cancel</Button><Button type="submit">Save</Button></div>
             </form>
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
+        <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{selectedCategory ? "Edit Category" : "Add Category"}</DialogTitle></DialogHeader>
+            <form onSubmit={handleCategorySubmit} className="space-y-4">
+              <div className="space-y-2"><Label>Name *</Label><Input value={categoryFormData.name} onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })} required /></div>
+              <div className="space-y-2"><Label>Slug *</Label><Input value={categoryFormData.slug} onChange={(e) => setCategoryFormData({ ...categoryFormData, slug: e.target.value })} required /></div>
+              <div className="space-y-2"><Label>Icon (emoji)</Label><Input value={categoryFormData.icon} onChange={(e) => setCategoryFormData({ ...categoryFormData, icon: e.target.value })} /></div>
+              <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setIsCategoryDialogOpen(false)}>Cancel</Button><Button type="submit">Save</Button></div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isBlogDialogOpen} onOpenChange={setIsBlogDialogOpen}>
+          <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>{selectedBlogPost ? "Edit Post" : "New Post"}</DialogTitle></DialogHeader>
+            <form onSubmit={handleBlogSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2"><Label>Title *</Label><Input value={blogFormData.title} onChange={(e) => setBlogFormData({ ...blogFormData, title: e.target.value })} required /></div>
+                <div className="space-y-2"><Label>Slug *</Label><Input value={blogFormData.slug} onChange={(e) => setBlogFormData({ ...blogFormData, slug: e.target.value })} required /></div>
+              </div>
+              <div className="space-y-2"><Label>Excerpt</Label><Textarea value={blogFormData.excerpt} onChange={(e) => setBlogFormData({ ...blogFormData, excerpt: e.target.value })} rows={2} /></div>
+              <div className="space-y-2"><Label>Featured Image URL</Label><Input value={blogFormData.featured_image} onChange={(e) => setBlogFormData({ ...blogFormData, featured_image: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Content *</Label><RichTextEditor content={blogFormData.content} onChange={(c) => setBlogFormData({ ...blogFormData, content: c })} /></div>
+              <div className="flex items-center gap-2"><Switch checked={blogFormData.published} onCheckedChange={(c) => setBlogFormData({ ...blogFormData, published: c })} /><Label>Publish</Label></div>
+              <div className="flex justify-end gap-2"><Button type="button" variant="outline" onClick={() => setIsBlogDialogOpen(false)}>Cancel</Button><Button type="submit">Save</Button></div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently delete "{selectedTool?.name}". This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
+            <AlertDialogHeader><AlertDialogTitle>Delete?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
+            <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction></AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </div>
