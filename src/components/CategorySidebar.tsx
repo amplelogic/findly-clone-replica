@@ -1,4 +1,4 @@
-import { Home, Search, Megaphone, Mail, Share2, BarChart3, PenTool, Target, TrendingUp, MousePointerClick, FileText, Video, Palette, Users, Globe, Smartphone, MessageSquare, Zap, Link2, ShoppingBag } from "lucide-react";
+import { Home, Search, Megaphone, Mail, Share2, BarChart3, PenTool, Target, TrendingUp, MousePointerClick, FileText, Video, Palette, Users, Globe, Smartphone, MessageSquare, Zap, Link2, ShoppingBag, Send } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -8,9 +8,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 
 const categories = [
   { name: "All Tools", icon: Home, path: "/" },
@@ -47,9 +49,18 @@ export const CategorySidebar = () => {
   };
   
   return (
-    <Sidebar className="border-r border-border" collapsible="offcanvas">
-      <SidebarContent>
-        <ScrollArea className="h-full">
+    <Sidebar className="border-r border-border bg-sidebar" collapsible="offcanvas">
+      <SidebarContent className="bg-sidebar">
+        {/* Logo at top */}
+        <div className="p-4 border-b border-sidebar-border">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="bg-foreground text-background px-2.5 py-1.5 rounded font-bold text-sm">
+              MARKETING.TOOLS
+            </div>
+          </Link>
+        </div>
+
+        <ScrollArea className="flex-1">
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -64,7 +75,7 @@ export const CategorySidebar = () => {
                           className={`flex items-center gap-3 transition-colors ${
                             active 
                               ? 'bg-primary/10 text-primary font-medium' 
-                              : 'hover:bg-secondary'
+                              : 'hover:bg-sidebar-accent'
                           }`}
                         >
                           <Icon className={`h-4 w-4 flex-shrink-0 ${active ? 'text-primary' : ''}`} />
@@ -79,6 +90,16 @@ export const CategorySidebar = () => {
           </SidebarGroup>
         </ScrollArea>
       </SidebarContent>
+
+      {/* Submit Tool button at bottom */}
+      <SidebarFooter className="p-4 border-t border-sidebar-border bg-sidebar">
+        <Link to="/submit">
+          <Button className="w-full" size="sm">
+            <Send className="h-4 w-4 mr-2" />
+            Submit Tool
+          </Button>
+        </Link>
+      </SidebarFooter>
     </Sidebar>
   );
 };

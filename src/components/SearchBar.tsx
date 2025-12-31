@@ -7,7 +7,7 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export const SearchBar = ({ value, onChange, placeholder = "Search tools..." }: SearchBarProps) => {
+export const SearchBar = ({ value, onChange, placeholder = "Search by name, tags, category..." }: SearchBarProps) => {
   return (
     <div className="relative">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

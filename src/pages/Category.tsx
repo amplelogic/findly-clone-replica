@@ -6,8 +6,9 @@ import { ToolCard } from "@/components/ToolCard";
 import { ToolCardSkeleton } from "@/components/ToolCardSkeleton";
 import { SearchBar } from "@/components/SearchBar";
 import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface Tool {
   id: string;
@@ -16,6 +17,8 @@ interface Tool {
   logo: string;
   badge: string | null;
   category: string | null;
+  slug: string | null;
+  tags: string[] | null;
 }
 
 const TOOLS_PER_PAGE = 60;
@@ -77,8 +80,12 @@ const Category = () => {
 
   const filteredTools = useMemo(() => {
     if (!searchQuery.trim()) return tools;
+    const query = searchQuery.toLowerCase();
     return tools.filter(tool => 
-      tool.name.toLowerCase().includes(searchQuery.toLowerCase())
+      tool.name.toLowerCase().includes(query) ||
+      tool.description.toLowerCase().includes(query) ||
+      (tool.category && tool.category.toLowerCase().includes(query)) ||
+      (tool.tags && tool.tags.some(tag => tag.toLowerCase().includes(query)))
     );
   }, [tools, searchQuery]);
 
@@ -105,43 +112,17 @@ const Category = () => {
     ? category.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
     : "All Tools";
 
+  const getCategorySlug = (cat: string) => {
+    return cat.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "");
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <CategorySidebar />
         
         <main className="flex-1 w-full flex flex-col">
-          <header className="border-b border-border bg-card sticky top-0 z-10">
-            <div className="container mx-auto px-4 sm:px-6 py-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <SidebarTrigger className="lg:hidden" />
-                  <Link to="/">
-                    <div className="bg-foreground text-background px-2 py-0.5 sm:px-2.5 sm:py-1 rounded font-bold text-xs">
-                      MARKETING.TOOLS
-                    </div>
-                  </Link>
-                  <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-accent/10 rounded text-xs font-medium text-accent-foreground">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent"></div>
-                    CERTIFIED DOMAIN RATING
-                  </div>
-                </div>
-                {user ? (
-                  <Link to="/admin">
-                    <Button variant="ghost" className="text-xs">
-                      Admin
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link to="/auth">
-                    <Button variant="ghost" className="text-xs">
-                      Sign in
-                    </Button>
-                  </Link>
-                )}
-              </div>
-            </div>
-          </header>
+          <Header user={user} />
 
           <section className="container mx-auto px-4 sm:px-6 py-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
@@ -150,11 +131,10 @@ const Category = () => {
             <p className="text-xs sm:text-sm text-muted-foreground mb-4">
               Find the best tools for you.
             </p>
-            <div className="w-full sm:w-64">
+            <div className="w-full sm:w-80">
               <SearchBar 
                 value={searchQuery} 
                 onChange={setSearchQuery} 
-                placeholder="Search tools by name..."
               />
             </div>
           </section>
@@ -174,13 +154,19 @@ const Category = () => {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
                   {displayedTools.map((tool) => (
-                    <Link key={tool.id} to={`/tool/${tool.id}`}>
+                    <Link 
+                      key={tool.id} 
+                      to={tool.category && tool.slug 
+                        ? `/${getCategorySlug(tool.category)}/${tool.slug}` 
+                        : `/tool/${tool.id}`
+                      }
+                    >
                       <ToolCard
                         id={tool.id}
                         name={tool.name}
                         description={tool.description}
                         logo={tool.logo}
-                        badge={tool.badge as "New" | "Deal" | undefined}
+                        badge={tool.badge as "New" | "Deal" | "Popular" | "Free" | undefined}
                         isSaved={savedTools.has(tool.id)}
                         onSaveToggle={() => handleSaveToggle(tool.id)}
                       />
