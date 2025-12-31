@@ -24,6 +24,8 @@ export type Database = {
           id: string
           published: boolean
           published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
           slug: string
           title: string
           updated_at: string
@@ -37,6 +39,8 @@ export type Database = {
           id?: string
           published?: boolean
           published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug: string
           title: string
           updated_at?: string
@@ -50,6 +54,8 @@ export type Database = {
           id?: string
           published?: boolean
           published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string
           title?: string
           updated_at?: string
@@ -80,6 +86,36 @@ export type Database = {
           name?: string
           slug?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -171,6 +207,8 @@ export type Database = {
           name: string
           overview: string | null
           pricing: string | null
+          seo_description: string | null
+          seo_title: string | null
           slug: string | null
           tags: string[] | null
           updated_at: string | null
@@ -191,6 +229,8 @@ export type Database = {
           name: string
           overview?: string | null
           pricing?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string | null
           tags?: string[] | null
           updated_at?: string | null
@@ -211,6 +251,8 @@ export type Database = {
           name?: string
           overview?: string | null
           pricing?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string | null
           tags?: string[] | null
           updated_at?: string | null
