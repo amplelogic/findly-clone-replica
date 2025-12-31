@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { SEOHead } from "@/components/SEOHead";
 
 interface Tool {
   id: string;
@@ -117,14 +118,19 @@ const Category = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background">
-        <CategorySidebar />
-        
-        <main className="flex-1 w-full flex flex-col">
-          <Header user={user} />
+    <>
+      <SEOHead
+        title={`${categoryName} - Best ${categoryName} Tools | Marketing.Tools`}
+        description={`Discover the best ${categoryName.toLowerCase()} tools. Compare features, pricing, and find the perfect tool for your marketing needs.`}
+      />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background">
+          <CategorySidebar />
+          
+          <main className="flex-1 w-full flex flex-col">
+            <Header user={user} />
 
-          <section className="container mx-auto px-4 sm:px-6 py-6">
+            <section className="container mx-auto px-4 sm:px-6 py-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
               {categoryName}
             </h1>
@@ -190,8 +196,9 @@ const Category = () => {
 
           <Footer />
         </main>
-      </div>
-    </SidebarProvider>
+        </div>
+      </SidebarProvider>
+    </>
   );
 };
 
