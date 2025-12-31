@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { SEOHead } from "@/components/SEOHead";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { 
   ExternalLink, Home, ChevronRight, Sparkles, FileText, TrendingUp, Bookmark,
