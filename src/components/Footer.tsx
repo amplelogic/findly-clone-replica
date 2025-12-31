@@ -7,7 +7,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div>
             <div className="bg-foreground text-background px-2.5 py-1 rounded font-bold text-xs inline-block mb-3">
-              FINDLY.TOOLS
+              MARKETING.TOOLS
             </div>
             <p className="text-xs text-muted-foreground">
               Find the best digital marketing tools, all in one place.
@@ -30,7 +30,7 @@ export const Footer = () => {
               <li><a href="#" className="hover:text-foreground transition-colors">Submit Tool</a></li>
               <li><a href="#" className="hover:text-foreground transition-colors">Advertise</a></li>
               <li><a href="#" className="hover:text-foreground transition-colors">Newsletter</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
+              <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
             </ul>
           </div>
           
@@ -46,7 +46,7 @@ export const Footer = () => {
         
         <div className="border-t border-border mt-6 pt-4 text-center">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Findly.Tools. All rights reserved.
+            © {new Date().getFullYear()} Marketing.Tools. All rights reserved.
           </p>
         </div>
       </div>

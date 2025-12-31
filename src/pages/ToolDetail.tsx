@@ -5,9 +5,11 @@ import { CategorySidebar } from "@/components/CategorySidebar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { ExternalLink, Home, ChevronRight, Sparkles, FileText, TrendingUp } from "lucide-react";
+import { ExternalLink, Home, ChevronRight, Sparkles, FileText, TrendingUp, Bookmark } from "lucide-react";
 import { ToolCard } from "@/components/ToolCard";
+import { useToast } from "@/hooks/use-toast";
 
 interface Tool {
   id: string;
@@ -24,19 +26,53 @@ interface Tool {
 const ToolDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [tool, setTool] = useState<Tool | null>(null);
   const [relatedTools, setRelatedTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savedTools, setSavedTools] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     checkAuth();
     fetchTool();
   }, [id]);
 
+  useEffect(() => {
+    if (user && id) {
+      checkIfSaved();
+      fetchSavedTools();
+    }
+  }, [user, id]);
+
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     setUser(session?.user ?? null);
+  };
+
+  const checkIfSaved = async () => {
+    if (!user || !id) return;
+    const { data } = await supabase
+      .from("saved_tools")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("tool_id", id)
+      .maybeSingle();
+    
+    setIsSaved(!!data);
+  };
+
+  const fetchSavedTools = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("saved_tools")
+      .select("tool_id")
+      .eq("user_id", user.id);
+    
+    if (data) {
+      setSavedTools(new Set(data.map(s => s.tool_id)));
+    }
   };
 
   const fetchTool = async () => {
@@ -55,7 +91,6 @@ const ToolDetail = () => {
 
     setTool(data);
 
-    // Fetch related tools from same category
     if (data.category) {
       const { data: related } = await supabase
         .from("tools")
@@ -72,6 +107,43 @@ const ToolDetail = () => {
     setLoading(false);
   };
 
+  const handleSaveClick = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please sign in to save tools.",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    if (!id) return;
+
+    try {
+      if (isSaved) {
+        await supabase
+          .from("saved_tools")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("tool_id", id);
+        setIsSaved(false);
+        toast({ title: "Tool removed from saved" });
+      } else {
+        await supabase
+          .from("saved_tools")
+          .insert({ user_id: user.id, tool_id: id });
+        setIsSaved(true);
+        toast({ title: "Tool saved!" });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save tool.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getCategorySlug = (category: string) => {
     return category.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "");
   };
@@ -81,8 +153,24 @@ const ToolDetail = () => {
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
           <CategorySidebar />
-          <main className="flex-1 flex items-center justify-center">
-            <p className="text-muted-foreground">Loading...</p>
+          <main className="flex-1 flex flex-col">
+            <div className="container mx-auto px-6 py-8">
+              <Skeleton className="h-8 w-1/3 mb-4" />
+              <Skeleton className="h-4 w-1/4 mb-8" />
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <Skeleton className="w-14 h-14 rounded-xl" />
+                    <div>
+                      <Skeleton className="h-6 w-48 mb-2" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-3/4" />
+                </CardContent>
+              </Card>
+            </div>
           </main>
         </div>
       </SidebarProvider>
@@ -97,7 +185,6 @@ const ToolDetail = () => {
         <CategorySidebar />
         
         <main className="flex-1 w-full flex flex-col">
-          {/* Header */}
           <header className="border-b border-border bg-card sticky top-0 z-10">
             <div className="container mx-auto px-4 sm:px-6 py-2.5">
               <div className="flex items-center justify-between">
@@ -105,7 +192,7 @@ const ToolDetail = () => {
                   <SidebarTrigger className="lg:hidden" />
                   <Link to="/">
                     <div className="bg-foreground text-background px-2 py-0.5 sm:px-2.5 sm:py-1 rounded font-bold text-xs">
-                      FINDLY.TOOLS
+                      MARKETING.TOOLS
                     </div>
                   </Link>
                   <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-accent/10 rounded text-xs font-medium text-accent-foreground">
@@ -130,7 +217,6 @@ const ToolDetail = () => {
             </div>
           </header>
 
-          {/* Breadcrumb */}
           <div className="border-b border-border bg-card">
             <div className="container mx-auto px-4 sm:px-6 py-3">
               <nav className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -157,9 +243,7 @@ const ToolDetail = () => {
 
           <div className="container mx-auto px-4 sm:px-6 py-6 flex-1">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Content */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Tool Header Card */}
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between gap-4">
@@ -174,19 +258,28 @@ const ToolDetail = () => {
                           )}
                         </div>
                       </div>
-                      {tool.website_url && (
-                        <Button asChild variant="outline">
-                          <a
-                            href={tool.website_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2"
-                          >
-                            Visit
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          onClick={handleSaveClick}
+                        >
+                          <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-primary text-primary' : ''}`} />
                         </Button>
-                      )}
+                        {tool.website_url && (
+                          <Button asChild variant="outline">
+                            <a
+                              href={tool.website_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2"
+                            >
+                              Visit
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -215,7 +308,6 @@ const ToolDetail = () => {
                   </CardContent>
                 </Card>
 
-                {/* Related Tools */}
                 {relatedTools.length > 0 && (
                   <div>
                     <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -225,10 +317,23 @@ const ToolDetail = () => {
                       {relatedTools.map((relatedTool) => (
                         <Link key={relatedTool.id} to={`/tool/${relatedTool.id}`}>
                           <ToolCard
+                            id={relatedTool.id}
                             name={relatedTool.name}
                             description={relatedTool.description}
                             logo={relatedTool.logo}
                             badge={relatedTool.badge as "New" | "Deal" | "Popular" | "Free" | undefined}
+                            isSaved={savedTools.has(relatedTool.id)}
+                            onSaveToggle={() => {
+                              setSavedTools(prev => {
+                                const newSet = new Set(prev);
+                                if (newSet.has(relatedTool.id)) {
+                                  newSet.delete(relatedTool.id);
+                                } else {
+                                  newSet.add(relatedTool.id);
+                                }
+                                return newSet;
+                              });
+                            }}
                           />
                         </Link>
                       ))}
@@ -237,9 +342,7 @@ const ToolDetail = () => {
                 )}
               </div>
 
-              {/* Sidebar */}
               <div className="space-y-4">
-                {/* Sponsor Spot */}
                 <Card className="border-dashed">
                   <CardContent className="p-4">
                     <p className="text-xs text-muted-foreground mb-2">Sponsor this spot</p>
@@ -257,7 +360,6 @@ const ToolDetail = () => {
                   </CardContent>
                 </Card>
 
-                {/* Submit Your Tool */}
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base flex items-center gap-2">
@@ -267,7 +369,7 @@ const ToolDetail = () => {
                   </CardHeader>
                   <CardContent className="pt-2">
                     <p className="text-xs text-muted-foreground mb-3">
-                      Get featured on Findly Tools and reach thousands of potential users
+                      Get featured on Marketing Tools and reach thousands of potential users
                     </p>
                     <Button className="w-full" size="sm">
                       Submit Now
@@ -289,7 +391,6 @@ const ToolDetail = () => {
                   </CardContent>
                 </Card>
 
-                {/* SEO Growth Package */}
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base flex items-center gap-2">

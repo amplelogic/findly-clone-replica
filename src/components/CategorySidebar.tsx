@@ -1,5 +1,5 @@
 import { Home, Search, Megaphone, Mail, Share2, BarChart3, PenTool, Target, TrendingUp, MousePointerClick, FileText, Video, Palette, Users, Globe, Smartphone, MessageSquare, Zap, Link2, ShoppingBag } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -37,6 +37,14 @@ const categories = [
 
 export const CategorySidebar = () => {
   const { open } = useSidebar();
+  const location = useLocation();
+  
+  const isActive = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname === path;
+  };
   
   return (
     <Sidebar className="border-r border-border" collapsible="offcanvas">
@@ -47,11 +55,19 @@ export const CategorySidebar = () => {
               <SidebarMenu>
                 {categories.map((category) => {
                   const Icon = category.icon;
+                  const active = isActive(category.path);
                   return (
                     <SidebarMenuItem key={category.path}>
                       <SidebarMenuButton asChild>
-                        <Link to={category.path} className="flex items-center gap-3">
-                          <Icon className="h-4 w-4 flex-shrink-0" />
+                        <Link 
+                          to={category.path} 
+                          className={`flex items-center gap-3 transition-colors ${
+                            active 
+                              ? 'bg-primary/10 text-primary font-medium' 
+                              : 'hover:bg-secondary'
+                          }`}
+                        >
+                          <Icon className={`h-4 w-4 flex-shrink-0 ${active ? 'text-primary' : ''}`} />
                           {open && <span className="truncate text-sm">{category.name}</span>}
                         </Link>
                       </SidebarMenuButton>
