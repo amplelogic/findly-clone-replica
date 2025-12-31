@@ -112,45 +112,111 @@ export type Database = {
           },
         ]
       }
-      tools: {
+      submitted_tools: {
         Row: {
-          badge: string | null
           category: string | null
-          created_at: string | null
+          created_at: string
           description: string
-          features: string[] | null
           id: string
           logo: string
           name: string
           pricing: string | null
-          updated_at: string | null
+          status: string
+          tags: string[] | null
+          updated_at: string
+          user_id: string
           website_url: string | null
         }
         Insert: {
-          badge?: string | null
           category?: string | null
-          created_at?: string | null
+          created_at?: string
           description: string
-          features?: string[] | null
           id?: string
           logo: string
           name: string
           pricing?: string | null
-          updated_at?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+          user_id: string
           website_url?: string | null
         }
         Update: {
-          badge?: string | null
           category?: string | null
-          created_at?: string | null
+          created_at?: string
           description?: string
-          features?: string[] | null
           id?: string
           logo?: string
           name?: string
           pricing?: string | null
-          updated_at?: string | null
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      tools: {
+        Row: {
+          badge: string | null
+          best_for: string | null
+          category: string | null
+          created_at: string | null
+          description: string
+          faqs: Json | null
+          features: string[] | null
+          id: string
+          logo: string
+          name: string
+          overview: string | null
+          pricing: string | null
+          slug: string | null
+          tags: string[] | null
+          updated_at: string | null
+          use_cases: string | null
+          website_url: string | null
+          youtube_tutorials: string[] | null
+        }
+        Insert: {
+          badge?: string | null
+          best_for?: string | null
+          category?: string | null
+          created_at?: string | null
+          description: string
+          faqs?: Json | null
+          features?: string[] | null
+          id?: string
+          logo: string
+          name: string
+          overview?: string | null
+          pricing?: string | null
+          slug?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          use_cases?: string | null
+          website_url?: string | null
+          youtube_tutorials?: string[] | null
+        }
+        Update: {
+          badge?: string | null
+          best_for?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string
+          faqs?: Json | null
+          features?: string[] | null
+          id?: string
+          logo?: string
+          name?: string
+          overview?: string | null
+          pricing?: string | null
+          slug?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          use_cases?: string | null
+          website_url?: string | null
+          youtube_tutorials?: string[] | null
         }
         Relationships: []
       }

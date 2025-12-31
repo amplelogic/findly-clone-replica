@@ -3,13 +3,29 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CategorySidebar } from "@/components/CategorySidebar";
 import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { ExternalLink, Home, ChevronRight, Sparkles, FileText, TrendingUp, Bookmark } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { 
+  ExternalLink, Home, ChevronRight, Sparkles, FileText, TrendingUp, Bookmark,
+  Check, Users, HelpCircle, Youtube, Tag
+} from "lucide-react";
 import { ToolCard } from "@/components/ToolCard";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+interface FAQ {
+  question: string;
+  answer: string;
+}
 
 interface Tool {
   id: string;
@@ -21,10 +37,17 @@ interface Tool {
   website_url: string | null;
   features: string[] | null;
   pricing: string | null;
+  slug: string | null;
+  tags: string[] | null;
+  overview: string | null;
+  use_cases: string | null;
+  best_for: string | null;
+  faqs: any;
+  youtube_tutorials: string[] | null;
 }
 
 const ToolDetail = () => {
-  const { id } = useParams();
+  const { id, category: categorySlug, slug } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [tool, setTool] = useState<Tool | null>(null);
@@ -37,14 +60,14 @@ const ToolDetail = () => {
   useEffect(() => {
     checkAuth();
     fetchTool();
-  }, [id]);
+  }, [id, slug]);
 
   useEffect(() => {
-    if (user && id) {
+    if (user && tool) {
       checkIfSaved();
       fetchSavedTools();
     }
-  }, [user, id]);
+  }, [user, tool]);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -52,12 +75,12 @@ const ToolDetail = () => {
   };
 
   const checkIfSaved = async () => {
-    if (!user || !id) return;
+    if (!user || !tool) return;
     const { data } = await supabase
       .from("saved_tools")
       .select("id")
       .eq("user_id", user.id)
-      .eq("tool_id", id)
+      .eq("tool_id", tool.id)
       .maybeSingle();
     
     setIsSaved(!!data);
@@ -76,17 +99,40 @@ const ToolDetail = () => {
   };
 
   const fetchTool = async () => {
-    if (!id) return;
+    let data: Tool | null = null;
+    
+    // First try to find by slug if provided
+    if (slug) {
+      const { data: slugData } = await supabase
+        .from("tools")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+      data = slugData;
+    }
+    
+    // Fallback to ID if slug not found or not provided
+    if (!data && id) {
+      const { data: idData } = await supabase
+        .from("tools")
+        .select("*")
+        .eq("id", id)
+        .single();
+      data = idData;
+    }
 
-    const { data, error } = await supabase
-      .from("tools")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error || !data) {
+    if (!data) {
       navigate("/");
       return;
+    }
+
+    // Parse FAQs if stored as JSON
+    if (data.faqs && typeof data.faqs === 'string') {
+      try {
+        data.faqs = JSON.parse(data.faqs);
+      } catch {
+        data.faqs = [];
+      }
     }
 
     setTool(data);
@@ -96,7 +142,7 @@ const ToolDetail = () => {
         .from("tools")
         .select("*")
         .eq("category", data.category)
-        .neq("id", id)
+        .neq("id", data.id)
         .limit(6);
 
       if (related) {
@@ -117,7 +163,7 @@ const ToolDetail = () => {
       return;
     }
 
-    if (!id) return;
+    if (!tool) return;
 
     try {
       if (isSaved) {
@@ -125,13 +171,13 @@ const ToolDetail = () => {
           .from("saved_tools")
           .delete()
           .eq("user_id", user.id)
-          .eq("tool_id", id);
+          .eq("tool_id", tool.id);
         setIsSaved(false);
         toast({ title: "Tool removed from saved" });
       } else {
         await supabase
           .from("saved_tools")
-          .insert({ user_id: user.id, tool_id: id });
+          .insert({ user_id: user.id, tool_id: tool.id });
         setIsSaved(true);
         toast({ title: "Tool saved!" });
       }
@@ -179,43 +225,15 @@ const ToolDetail = () => {
 
   if (!tool) return null;
 
+  const faqs = Array.isArray(tool.faqs) ? tool.faqs : [];
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <CategorySidebar />
         
         <main className="flex-1 w-full flex flex-col">
-          <header className="border-b border-border bg-card sticky top-0 z-10">
-            <div className="container mx-auto px-4 sm:px-6 py-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <SidebarTrigger className="lg:hidden" />
-                  <Link to="/">
-                    <div className="bg-foreground text-background px-2 py-0.5 sm:px-2.5 sm:py-1 rounded font-bold text-xs">
-                      MARKETING.TOOLS
-                    </div>
-                  </Link>
-                  <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-accent/10 rounded text-xs font-medium text-accent-foreground">
-                    <div className="w-1.5 h-1.5 rounded-full bg-accent"></div>
-                    CERTIFIED DOMAIN RATING
-                  </div>
-                </div>
-                {user ? (
-                  <Link to="/admin">
-                    <Button variant="ghost" className="text-xs">
-                      Admin
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link to="/auth">
-                    <Button variant="ghost" className="text-xs">
-                      Sign in
-                    </Button>
-                  </Link>
-                )}
-              </div>
-            </div>
-          </header>
+          <Header user={user} />
 
           <div className="border-b border-border bg-card">
             <div className="container mx-auto px-4 sm:px-6 py-3">
@@ -244,6 +262,7 @@ const ToolDetail = () => {
           <div className="container mx-auto px-4 sm:px-6 py-6 flex-1">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
+                {/* Main Info Card */}
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between gap-4">
@@ -282,6 +301,18 @@ const ToolDetail = () => {
                       </div>
                     </div>
 
+                    {/* Tags */}
+                    {tool.tags && tool.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {tool.tags.map((tag, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            <Tag className="h-3 w-3 mr-1" />
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
                     <p className="mt-4 text-muted-foreground leading-relaxed">
                       {tool.description}
                     </p>
@@ -294,20 +325,142 @@ const ToolDetail = () => {
                         </span>
                       </div>
                     )}
-
-                    {tool.features && tool.features.length > 0 && (
-                      <div className="mt-4">
-                        <h3 className="text-sm font-medium text-foreground mb-2">Features</h3>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                          {tool.features.map((feature, index) => (
-                            <li key={index}>{feature}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
 
+                {/* Overview Section */}
+                {tool.overview && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Overview
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                        {tool.overview}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Features Section */}
+                {tool.features && tool.features.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Check className="h-5 w-5" />
+                        Key Features
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {tool.features.map((feature, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-muted-foreground">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Use Cases Section */}
+                {tool.use_cases && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5" />
+                        Real-world Use Cases
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                        {tool.use_cases}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Best For Section */}
+                {tool.best_for && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Who It's Best For
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                        {tool.best_for}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* FAQs Section */}
+                {faqs.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <HelpCircle className="h-5 w-5" />
+                        Frequently Asked Questions
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Accordion type="single" collapsible className="w-full">
+                        {faqs.map((faq, index) => (
+                          <AccordionItem key={index} value={`faq-${index}`}>
+                            <AccordionTrigger className="text-left">
+                              {faq.question}
+                            </AccordionTrigger>
+                            <AccordionContent className="text-muted-foreground">
+                              {faq.answer}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* YouTube Tutorials Section */}
+                {tool.youtube_tutorials && tool.youtube_tutorials.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Youtube className="h-5 w-5 text-red-500" />
+                        Video Tutorials
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {tool.youtube_tutorials.map((url, index) => {
+                          const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1];
+                          if (!videoId) return null;
+                          return (
+                            <div key={index} className="aspect-video rounded-lg overflow-hidden">
+                              <iframe
+                                width="100%"
+                                height="100%"
+                                src={`https://www.youtube.com/embed/${videoId}`}
+                                title={`Tutorial ${index + 1}`}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="border-0"
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Related Tools */}
                 {relatedTools.length > 0 && (
                   <div>
                     <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -315,7 +468,13 @@ const ToolDetail = () => {
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {relatedTools.map((relatedTool) => (
-                        <Link key={relatedTool.id} to={`/tool/${relatedTool.id}`}>
+                        <Link 
+                          key={relatedTool.id} 
+                          to={relatedTool.category && relatedTool.slug 
+                            ? `/${getCategorySlug(relatedTool.category)}/${relatedTool.slug}` 
+                            : `/tool/${relatedTool.id}`
+                          }
+                        >
                           <ToolCard
                             id={relatedTool.id}
                             name={relatedTool.name}
@@ -342,6 +501,7 @@ const ToolDetail = () => {
                 )}
               </div>
 
+              {/* Sidebar */}
               <div className="space-y-4">
                 <Card className="border-dashed">
                   <CardContent className="p-4">
@@ -353,7 +513,7 @@ const ToolDetail = () => {
                       <div>
                         <h3 className="font-semibold text-sm text-foreground">Your Tool Here</h3>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Get maximum visibility with a sponsor spot. Shown on every tool page sidebar.
+                          Get maximum visibility with a sponsor spot.
                         </p>
                       </div>
                     </div>
@@ -369,25 +529,13 @@ const ToolDetail = () => {
                   </CardHeader>
                   <CardContent className="pt-2">
                     <p className="text-xs text-muted-foreground mb-3">
-                      Get featured on Marketing Tools and reach thousands of potential users
+                      Get featured on Marketing Tools
                     </p>
-                    <Button className="w-full" size="sm">
-                      Submit Now
-                    </Button>
-                    <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-muted-foreground"></span>
-                        Dofollow backlinks
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-muted-foreground"></span>
-                        Lifetime listing
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-muted-foreground"></span>
-                        Starting from $0
-                      </li>
-                    </ul>
+                    <Link to="/submit">
+                      <Button className="w-full" size="sm">
+                        Submit Now
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
 
@@ -400,25 +548,11 @@ const ToolDetail = () => {
                   </CardHeader>
                   <CardContent className="pt-2">
                     <p className="text-xs text-muted-foreground mb-3">
-                      Get a dedicated SEO article and rank for "{tool.name}" review
+                      Get a dedicated SEO article
                     </p>
                     <Button variant="outline" className="w-full bg-primary/5 border-primary/20 text-primary hover:bg-primary/10" size="sm">
                       Learn More
                     </Button>
-                    <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-muted-foreground"></span>
-                        Custom SEO article
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-muted-foreground"></span>
-                        Google ranking strategy
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-muted-foreground"></span>
-                        Long-term traffic
-                      </li>
-                    </ul>
                   </CardContent>
                 </Card>
               </div>

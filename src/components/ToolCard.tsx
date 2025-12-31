@@ -64,7 +64,7 @@ export const ToolCard = ({ id, name, description, logo, badge, isSaved = false, 
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border hover:border-primary/20">
+    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer bg-tool-card border-tool-card-border hover:border-primary/20">
       <CardContent className="p-2.5">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-md bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -99,7 +99,7 @@ export const ToolCard = ({ id, name, description, logo, badge, isSaved = false, 
             />
           </button>
         </div>
-        <p className="text-xs text-muted-foreground line-clamp-1 leading-relaxed mt-1">
+        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-1.5">
           {description}
         </p>
       </CardContent>
