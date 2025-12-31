@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { SEOHead } from "@/components/SEOHead";
 
 const TOOLS_PER_PAGE = 60;
 
@@ -106,10 +107,15 @@ const Index = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background">
-        <CategorySidebar />
-        
+    <>
+      <SEOHead
+        title="Marketing.Tools - The Best Marketing Tools Directory"
+        description="Discover the best marketing tools for SEO, social media, email marketing, analytics, and more. Find the perfect tools to grow your business."
+        canonicalUrl="https://marketing.tools"
+      />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background">
+          <CategorySidebar />
         <main className="flex-1 w-full flex flex-col">
           <Header user={user} />
 
@@ -180,7 +186,8 @@ const Index = () => {
           <Footer />
         </main>
       </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </>
   );
 };
 

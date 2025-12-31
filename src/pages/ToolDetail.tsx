@@ -45,6 +45,8 @@ interface Tool {
   best_for: string | null;
   faqs: any;
   youtube_tutorials: string[] | null;
+  seo_title: string | null;
+  seo_description: string | null;
 }
 
 const ToolDetail = () => {
@@ -229,12 +231,17 @@ const ToolDetail = () => {
   const faqs = Array.isArray(tool.faqs) ? tool.faqs : [];
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background">
-        <CategorySidebar />
-        
-        <main className="flex-1 w-full flex flex-col">
-          <Header user={user} />
+    <>
+      <SEOHead
+        title={tool.seo_title || `${tool.name} - ${tool.category || 'Marketing Tool'} | Marketing.Tools`}
+        description={tool.seo_description || tool.description}
+      />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background">
+          <CategorySidebar />
+          
+          <main className="flex-1 w-full flex flex-col">
+            <Header user={user} />
 
           <div className="border-b border-border bg-card">
             <div className="container mx-auto px-4 sm:px-6 py-3">
@@ -562,8 +569,9 @@ const ToolDetail = () => {
 
           <Footer />
         </main>
-      </div>
-    </SidebarProvider>
+        </div>
+      </SidebarProvider>
+    </>
   );
 };
 

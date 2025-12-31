@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { Send, CheckCircle } from "lucide-react";
+import { SEOHead } from "@/components/SEOHead";
 
 const categories = [
   "SEO Tools", "Social Media Marketing", "Email Marketing", "Content Marketing",
@@ -94,169 +95,181 @@ const SubmitTool = () => {
 
   if (submitted) {
     return (
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-background">
-          <CategorySidebar />
-          <main className="flex-1 w-full flex flex-col">
-            <Header user={user} />
-            <div className="container mx-auto px-4 sm:px-6 py-12 flex-1 flex items-center justify-center">
-              <Card className="max-w-md w-full text-center">
-                <CardContent className="pt-6">
-                  <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-foreground mb-2">Submission Received!</h2>
-                  <p className="text-muted-foreground mb-6">
-                    Thank you for submitting your tool. Our team will review it and get back to you soon.
-                  </p>
-                  <div className="flex gap-3 justify-center">
-                    <Link to="/dashboard">
-                      <Button variant="outline">View Dashboard</Button>
-                    </Link>
-                    <Link to="/">
-                      <Button>Browse Tools</Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            <Footer />
-          </main>
-        </div>
-      </SidebarProvider>
+      <>
+        <SEOHead
+          title="Submission Received - Marketing.Tools"
+          description="Thank you for submitting your tool to Marketing.Tools."
+        />
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full bg-background">
+            <CategorySidebar />
+            <main className="flex-1 w-full flex flex-col">
+              <Header user={user} />
+              <div className="container mx-auto px-4 sm:px-6 py-12 flex-1 flex items-center justify-center">
+                <Card className="max-w-md w-full text-center">
+                  <CardContent className="pt-6">
+                    <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                    <h2 className="text-2xl font-bold text-foreground mb-2">Submission Received!</h2>
+                    <p className="text-muted-foreground mb-6">
+                      Thank you for submitting your tool. Our team will review it and get back to you soon.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Link to="/dashboard">
+                        <Button variant="outline">View Dashboard</Button>
+                      </Link>
+                      <Link to="/">
+                        <Button>Browse Tools</Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              <Footer />
+            </main>
+          </div>
+        </SidebarProvider>
+      </>
     );
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background">
-        <CategorySidebar />
-        
-        <main className="flex-1 w-full flex flex-col">
-          <Header user={user} />
+    <>
+      <SEOHead
+        title="Submit Your Tool - Marketing.Tools"
+        description="Get your marketing tool featured on Marketing.Tools. Submit your tool for review and reach thousands of marketers."
+      />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full bg-background">
+          <CategorySidebar />
+          
+          <main className="flex-1 w-full flex flex-col">
+            <Header user={user} />
 
-          <div className="container mx-auto px-4 sm:px-6 py-6 flex-1">
-            <div className="max-w-2xl mx-auto">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Send className="h-5 w-5" />
-                    Submit Your Tool
-                  </CardTitle>
-                  <CardDescription>
-                    Get your tool featured on Marketing.Tools and reach thousands of marketers
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="container mx-auto px-4 sm:px-6 py-6 flex-1">
+              <div className="max-w-2xl mx-auto">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Send className="h-5 w-5" />
+                      Submit Your Tool
+                    </CardTitle>
+                    <CardDescription>
+                      Get your tool featured on Marketing.Tools and reach thousands of marketers
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Tool Name *</Label>
+                          <Input
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            placeholder="e.g., SEMrush"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Logo (emoji) *</Label>
+                          <Input
+                            value={formData.logo}
+                            onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                            placeholder="e.g., 🔍"
+                            required
+                          />
+                        </div>
+                      </div>
+
                       <div className="space-y-2">
-                        <Label>Tool Name *</Label>
-                        <Input
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          placeholder="e.g., SEMrush"
+                        <Label>Description *</Label>
+                        <Textarea
+                          value={formData.description}
+                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          placeholder="Describe what your tool does..."
                           required
+                          rows={3}
                         />
                       </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Category</Label>
+                          <Select 
+                            value={formData.category} 
+                            onValueChange={(v) => setFormData({ ...formData, category: v })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map((cat) => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Pricing</Label>
+                          <Select 
+                            value={formData.pricing} 
+                            onValueChange={(v) => setFormData({ ...formData, pricing: v })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select pricing" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Free">Free</SelectItem>
+                              <SelectItem value="Freemium">Freemium</SelectItem>
+                              <SelectItem value="Paid">Paid</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
                       <div className="space-y-2">
-                        <Label>Logo (emoji) *</Label>
+                        <Label>Website URL</Label>
                         <Input
-                          value={formData.logo}
-                          onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                          placeholder="e.g., 🔍"
-                          required
+                          type="url"
+                          value={formData.website_url}
+                          onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
+                          placeholder="https://yourtool.com"
                         />
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label>Description *</Label>
-                      <Textarea
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder="Describe what your tool does..."
-                        required
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Category</Label>
-                        <Select 
-                          value={formData.category} 
-                          onValueChange={(v) => setFormData({ ...formData, category: v })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories.map((cat) => (
-                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Label>Tags (comma separated)</Label>
+                        <Input
+                          value={formData.tags}
+                          onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                          placeholder="e.g., seo, keyword research, analytics"
+                        />
                       </div>
-                      <div className="space-y-2">
-                        <Label>Pricing</Label>
-                        <Select 
-                          value={formData.pricing} 
-                          onValueChange={(v) => setFormData({ ...formData, pricing: v })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select pricing" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Free">Free</SelectItem>
-                            <SelectItem value="Freemium">Freemium</SelectItem>
-                            <SelectItem value="Paid">Paid</SelectItem>
-                          </SelectContent>
-                        </Select>
+
+                      <div className="pt-4">
+                        <Button type="submit" className="w-full" disabled={loading}>
+                          {loading ? "Submitting..." : "Submit Tool"}
+                        </Button>
                       </div>
-                    </div>
+                    </form>
+                  </CardContent>
+                </Card>
 
-                    <div className="space-y-2">
-                      <Label>Website URL</Label>
-                      <Input
-                        type="url"
-                        value={formData.website_url}
-                        onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                        placeholder="https://yourtool.com"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Tags (comma separated)</Label>
-                      <Input
-                        value={formData.tags}
-                        onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                        placeholder="e.g., seo, keyword research, analytics"
-                      />
-                    </div>
-
-                    <div className="pt-4">
-                      <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? "Submitting..." : "Submit Tool"}
-                      </Button>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <div className="mt-6 p-4 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-                <h4 className="font-medium text-foreground mb-2">What happens next?</h4>
-                <ul className="space-y-1">
-                  <li>• Our team will review your submission within 24-48 hours</li>
-                  <li>• You'll receive an email notification once approved</li>
-                  <li>• Approved tools get a lifetime listing on Marketing.Tools</li>
-                </ul>
+                <div className="mt-6 p-4 rounded-lg bg-muted/50 text-sm text-muted-foreground">
+                  <h4 className="font-medium text-foreground mb-2">What happens next?</h4>
+                  <ul className="space-y-1">
+                    <li>• Our team will review your submission within 24-48 hours</li>
+                    <li>• You'll receive an email notification once approved</li>
+                    <li>• Approved tools get a lifetime listing on Marketing.Tools</li>
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
 
-          <Footer />
-        </main>
-      </div>
-    </SidebarProvider>
+            <Footer />
+          </main>
+        </div>
+      </SidebarProvider>
+    </>
   );
 };
 
