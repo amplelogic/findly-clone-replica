@@ -56,6 +56,16 @@ export const Header = ({ user }: HeaderProps) => {
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link 
+                    to="/tools" 
+                    className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Free Tools
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link 
                     to="/blog" 
                     className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
