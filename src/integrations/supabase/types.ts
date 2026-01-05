@@ -89,6 +89,57 @@ export type Database = {
         }
         Relationships: []
       }
+      free_seo_tools: {
+        Row: {
+          category: string
+          created_at: string
+          custom_script: string | null
+          description: string
+          display_order: number
+          icon: string
+          id: string
+          is_active: boolean
+          name: string
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          tool_content: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          custom_script?: string | null
+          description: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          tool_content?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          custom_script?: string | null
+          description?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          tool_content?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

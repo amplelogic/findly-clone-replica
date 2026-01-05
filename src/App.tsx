@@ -30,6 +30,22 @@ import MobileFirstIndex from "./pages/tools/MobileFirstIndex";
 import MobileFriendlyTest from "./pages/tools/MobileFriendlyTest";
 import AmpValidator from "./pages/tools/AmpValidator";
 import LocalSearchResults from "./pages/tools/LocalSearchResults";
+import CanonicalUrlChecker from "./pages/tools/CanonicalUrlChecker";
+import RedirectChecker from "./pages/tools/RedirectChecker";
+import MetaTagAnalyzer from "./pages/tools/MetaTagAnalyzer";
+import HeadingStructureChecker from "./pages/tools/HeadingStructureChecker";
+import KeywordDensityChecker from "./pages/tools/KeywordDensityChecker";
+import WordCounter from "./pages/tools/WordCounter";
+import ReadabilityAnalyzer from "./pages/tools/ReadabilityAnalyzer";
+import DuplicateContentChecker from "./pages/tools/DuplicateContentChecker";
+import PageSpeedAnalyzer from "./pages/tools/PageSpeedAnalyzer";
+import HttpHeaderChecker from "./pages/tools/HttpHeaderChecker";
+import SslChecker from "./pages/tools/SslChecker";
+import UrlEncoderDecoder from "./pages/tools/UrlEncoderDecoder";
+import QrCodeGenerator from "./pages/tools/QrCodeGenerator";
+import ColorContrastChecker from "./pages/tools/ColorContrastChecker";
+import UtmBuilder from "./pages/tools/UtmBuilder";
+import TimestampConverter from "./pages/tools/TimestampConverter";
 
 const queryClient = new QueryClient();
 
@@ -66,9 +82,23 @@ const App = () => (
           <Route path="/tools/mobile-friendly-test" element={<MobileFriendlyTest />} />
           <Route path="/tools/amp-validator" element={<AmpValidator />} />
           <Route path="/tools/local-search-results" element={<LocalSearchResults />} />
-          {/* Category/Tool slug routes - e.g., /video-marketing/wistia */}
+          <Route path="/tools/canonical-url-checker" element={<CanonicalUrlChecker />} />
+          <Route path="/tools/redirect-checker" element={<RedirectChecker />} />
+          <Route path="/tools/meta-tag-analyzer" element={<MetaTagAnalyzer />} />
+          <Route path="/tools/heading-structure-checker" element={<HeadingStructureChecker />} />
+          <Route path="/tools/keyword-density-checker" element={<KeywordDensityChecker />} />
+          <Route path="/tools/word-counter" element={<WordCounter />} />
+          <Route path="/tools/readability-analyzer" element={<ReadabilityAnalyzer />} />
+          <Route path="/tools/duplicate-content-checker" element={<DuplicateContentChecker />} />
+          <Route path="/tools/page-speed-insights" element={<PageSpeedAnalyzer />} />
+          <Route path="/tools/http-header-checker" element={<HttpHeaderChecker />} />
+          <Route path="/tools/ssl-checker" element={<SslChecker />} />
+          <Route path="/tools/url-encoder-decoder" element={<UrlEncoderDecoder />} />
+          <Route path="/tools/qr-code-generator" element={<QrCodeGenerator />} />
+          <Route path="/tools/color-contrast-checker" element={<ColorContrastChecker />} />
+          <Route path="/tools/utm-builder" element={<UtmBuilder />} />
+          <Route path="/tools/timestamp-converter" element={<TimestampConverter />} />
           <Route path="/:category/:slug" element={<ToolDetail />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

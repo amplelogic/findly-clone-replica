@@ -2,10 +2,8 @@ import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { SEOHead } from "@/components/SEOHead";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { CategorySidebar } from "@/components/CategorySidebar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Wrench } from "lucide-react";
 
 interface ToolPageLayoutProps {
   title: string;
@@ -21,34 +19,44 @@ export const ToolPageLayout = ({ title, description, children }: ToolPageLayoutP
         description={description}
         canonicalUrl={`https://marketing.tools/tools`}
       />
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-background">
-          <CategorySidebar />
-          <main className="flex-1 w-full flex flex-col">
-            <Header user={null} />
-            
-            <section className="container mx-auto px-6 py-6">
+      <div className="min-h-screen w-full bg-background flex flex-col">
+        <Header user={null} />
+        
+        <main className="flex-1">
+          {/* Tool Header */}
+          <section className="border-b bg-gradient-to-b from-muted/30 to-background">
+            <div className="container mx-auto px-6 py-8">
               <Link to="/tools">
-                <Button variant="ghost" size="sm" className="mb-4 -ml-2">
+                <Button variant="ghost" size="sm" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
                   <ArrowLeft className="h-4 w-4 mr-1" />
-                  Back to Tools
+                  Back to All Tools
                 </Button>
               </Link>
               
-              <h1 className="text-2xl font-bold text-foreground mb-2">
-                {title}
-              </h1>
-              <p className="text-muted-foreground mb-6 max-w-2xl">
-                {description}
-              </p>
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-primary/10 rounded-xl shrink-0">
+                  <Wrench className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+                    {title}
+                  </h1>
+                  <p className="text-muted-foreground max-w-2xl">
+                    {description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
 
-              {children}
-            </section>
+          {/* Tool Content */}
+          <section className="container mx-auto px-6 py-8">
+            {children}
+          </section>
+        </main>
 
-            <Footer />
-          </main>
-        </div>
-      </SidebarProvider>
+        <Footer />
+      </div>
     </>
   );
 };
