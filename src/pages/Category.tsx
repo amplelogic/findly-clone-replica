@@ -128,7 +128,7 @@ const Category = () => {
           <CategorySidebar />
           
           <main className="flex-1 w-full flex flex-col">
-            <Header user={user} />
+            <Header user={user} showSidebarTrigger />
 
             <section className="container mx-auto px-4 sm:px-6 py-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">

@@ -117,7 +117,7 @@ const Index = () => {
         <div className="flex min-h-screen w-full bg-background">
           <CategorySidebar />
         <main className="flex-1 w-full flex flex-col">
-          <Header user={user} />
+          <Header user={user} showSidebarTrigger />
 
           <section className="container mx-auto px-6 py-8">
             <h1 className="text-3xl font-bold text-foreground mb-1.5">
