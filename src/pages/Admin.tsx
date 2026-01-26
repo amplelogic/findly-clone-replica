@@ -20,6 +20,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { iconMap } from "@/data/toolsData";
+import { ToolLogo } from "@/components/ToolLogo";
 
 interface Tool {
   id: string;
@@ -468,11 +469,7 @@ const Admin = () => {
                       {tools.map((tool) => (
                         <TableRow key={tool.id}>
                           <TableCell>
-                            {tool.logo.startsWith("http") ? (
-                              <img src={tool.logo} alt={tool.name} className="w-10 h-10 rounded-lg object-cover" />
-                            ) : (
-                              <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-lg">{tool.logo}</div>
-                            )}
+                            <ToolLogo logo={tool.logo} name={tool.name} />
                           </TableCell>
                           <TableCell className="font-medium">{tool.name}</TableCell>
                           <TableCell className="hidden md:table-cell text-muted-foreground text-sm">{tool.category || "-"}</TableCell>
