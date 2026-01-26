@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ToolLogo } from "@/components/ToolLogo";
 
 interface ToolCardProps {
   id?: string;
@@ -67,9 +68,7 @@ export const ToolCard = ({ id, name, description, logo, badge, isSaved = false, 
     <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer bg-tool-card border-tool-card-border hover:border-primary/20">
       <CardContent className="p-2.5">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
-            <span className="text-sm font-bold text-foreground">{logo}</span>
-          </div>
+          <ToolLogo logo={logo} name={name} size="sm" />
           <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors flex-1 line-clamp-1">
             {name}
           </h3>
