@@ -5,17 +5,16 @@ import { CategorySidebar } from "@/components/CategorySidebar";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { SEOHead } from "@/components/SEOHead";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ToolLogo } from "@/components/ToolLogo";
 import { 
-  ExternalLink, Home, ChevronRight, FileText, TrendingUp, Bookmark,
-  Check, Users, HelpCircle, Youtube, Tag, Star, Zap, Target, ArrowRight
+  ExternalLink, Home, ChevronRight, Bookmark, Check, Globe, Youtube as YoutubeIcon,
+  ChevronDown, ChevronUp
 } from "lucide-react";
-import { ToolCard } from "@/components/ToolCard";
 import { useToast } from "@/hooks/use-toast";
 import {
   Accordion,
@@ -59,7 +58,7 @@ const ToolDetail = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [isSaved, setIsSaved] = useState(false);
-  const [savedTools, setSavedTools] = useState<Set<string>>(new Set());
+  const [showAllFeatures, setShowAllFeatures] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -69,7 +68,6 @@ const ToolDetail = () => {
   useEffect(() => {
     if (user && tool) {
       checkIfSaved();
-      fetchSavedTools();
     }
   }, [user, tool]);
 
@@ -88,18 +86,6 @@ const ToolDetail = () => {
       .maybeSingle();
     
     setIsSaved(!!data);
-  };
-
-  const fetchSavedTools = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("saved_tools")
-      .select("tool_id")
-      .eq("user_id", user.id);
-    
-    if (data) {
-      setSavedTools(new Set(data.map(s => s.tool_id)));
-    }
   };
 
   const fetchTool = async () => {
@@ -144,7 +130,7 @@ const ToolDetail = () => {
         .select("*")
         .eq("category", data.category)
         .neq("id", data.id)
-        .limit(6);
+        .limit(4);
 
       if (related) {
         setRelatedTools(related);
@@ -201,22 +187,34 @@ const ToolDetail = () => {
         <div className="flex min-h-screen w-full bg-background">
           <CategorySidebar />
           <main className="flex-1 flex flex-col">
-            <div className="container mx-auto px-6 py-8">
-              <Skeleton className="h-8 w-1/3 mb-4" />
-              <Skeleton className="h-4 w-1/4 mb-8" />
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <Skeleton className="w-14 h-14 rounded-xl" />
-                    <div>
-                      <Skeleton className="h-6 w-48 mb-2" />
-                      <Skeleton className="h-4 w-32" />
-                    </div>
-                  </div>
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-3/4" />
-                </CardContent>
-              </Card>
+            <div className="container mx-auto px-4 py-8 max-w-6xl">
+              <Skeleton className="h-6 w-48 mb-6" />
+              <Skeleton className="h-10 w-64 mb-8" />
+              <div className="grid lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-4 mb-4">
+                        <Skeleton className="w-16 h-16 rounded-xl" />
+                        <div className="flex-1">
+                          <Skeleton className="h-6 w-48 mb-2" />
+                          <Skeleton className="h-4 w-32" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-20 w-full" />
+                    </CardContent>
+                  </Card>
+                </div>
+                <div>
+                  <Card>
+                    <CardContent className="p-6">
+                      <Skeleton className="h-6 w-full mb-4" />
+                      <Skeleton className="h-4 w-full mb-2" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </div>
           </main>
         </div>
@@ -227,7 +225,7 @@ const ToolDetail = () => {
   if (!tool) return null;
 
   const faqs = Array.isArray(tool.faqs) ? tool.faqs : [];
-  const hasDetailedContent = tool.overview || (tool.features && tool.features.length > 0) || tool.use_cases || tool.best_for || faqs.length > 0;
+  const displayedFeatures = showAllFeatures ? tool.features : tool.features?.slice(0, 3);
 
   return (
     <>
@@ -242,410 +240,326 @@ const ToolDetail = () => {
           <main className="flex-1 w-full flex flex-col">
             <Header user={user} showSidebarTrigger />
 
-            {/* Breadcrumb Navigation */}
-            <div className="border-b border-border bg-card">
-              <div className="container mx-auto px-4 sm:px-6 py-3">
-                <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Link to="/" className="flex items-center gap-1 hover:text-foreground transition-colors">
-                    <Home className="h-4 w-4" />
-                    Home
-                  </Link>
-                  <ChevronRight className="h-4 w-4" />
+            {/* Breadcrumb */}
+            <div className="border-b border-border/50">
+              <div className="container mx-auto px-4 py-3 max-w-6xl">
+                <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                  <Link to="/tools" className="hover:text-foreground transition-colors">Tools</Link>
                   {tool.category && (
                     <>
+                      <ChevronRight className="h-3.5 w-3.5" />
                       <Link 
-                        to={`/categories/${getCategorySlug(tool.category)}`} 
+                        to={`/categories/${getCategorySlug(tool.category)}`}
                         className="hover:text-foreground transition-colors"
                       >
                         {tool.category}
                       </Link>
-                      <ChevronRight className="h-4 w-4" />
                     </>
                   )}
-                  <span className="text-foreground font-medium">{tool.name}</span>
                 </nav>
               </div>
             </div>
 
-            <div className="container mx-auto px-4 sm:px-6 py-6 flex-1">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                  {/* Single Unified Card */}
-                  <Card className="overflow-hidden">
-                    {/* Hero Header */}
-                    <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-6 border-b">
-                      <div className="flex items-start justify-between gap-4">
+            {/* Page Title */}
+            <div className="container mx-auto px-4 pt-6 pb-4 max-w-6xl">
+              <h1 className="text-2xl font-bold text-foreground">{tool.name} Review</h1>
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="container mx-auto px-4 pb-12 max-w-6xl flex-1">
+              <div className="grid lg:grid-cols-3 gap-6">
+                {/* Left Column - Main Content */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Hero Card */}
+                  <Card className="overflow-hidden border-border/60">
+                    <CardContent className="p-6">
+                      {/* Tool Header */}
+                      <div className="flex items-start justify-between gap-4 mb-5">
                         <div className="flex items-center gap-4">
                           <ToolLogo logo={tool.logo} name={tool.name} size="lg" />
                           <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <h1 className="text-xl sm:text-2xl font-bold text-foreground">{tool.name}</h1>
+                            <div className="flex items-center gap-2.5 mb-1">
+                              <h2 className="text-xl font-semibold text-foreground">{tool.name}</h2>
                               {tool.badge && (
                                 <Badge 
-                                  variant={tool.badge === "New" ? "default" : "secondary"}
-                                  className={
-                                    tool.badge === "New" 
-                                      ? "bg-primary text-primary-foreground" 
-                                      : tool.badge === "Popular"
-                                      ? "bg-amber-500/10 text-amber-600"
-                                      : tool.badge === "Free"
-                                      ? "bg-green-500/10 text-green-600"
-                                      : ""
-                                  }
+                                  variant="outline"
+                                  className="text-xs font-medium border-primary/30 text-primary bg-primary/5"
                                 >
                                   {tool.badge}
                                 </Badge>
                               )}
                             </div>
                             {tool.category && (
-                              <Link 
-                                to={`/categories/${getCategorySlug(tool.category)}`}
-                                className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                              >
-                                {tool.category}
-                              </Link>
+                              <p className="text-sm text-muted-foreground">{tool.category}</p>
                             )}
                           </div>
                         </div>
-                        <div className="flex gap-2 shrink-0">
-                          <Button 
-                            variant="outline" 
-                            size="icon"
-                            onClick={handleSaveClick}
-                            className="h-9 w-9"
-                          >
-                            <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-primary text-primary' : ''}`} />
+                        {tool.website_url && (
+                          <Button asChild size="sm" className="shrink-0">
+                            <a href={tool.website_url} target="_blank" rel="noopener noreferrer">
+                              <Globe className="h-4 w-4 mr-1.5" />
+                              Get {tool.name}
+                            </a>
                           </Button>
-                          {tool.website_url && (
-                            <Button asChild>
-                              <a
-                                href={tool.website_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2"
-                              >
-                                Visit Website
-                                <ExternalLink className="h-4 w-4" />
-                              </a>
-                            </Button>
-                          )}
-                        </div>
+                        )}
                       </div>
-                    </div>
-                    
-                    <CardContent className="p-6 space-y-6">
+
                       {/* Description */}
-                      <p className="text-muted-foreground leading-relaxed text-base">
+                      <p className="text-muted-foreground leading-relaxed mb-5">
                         {tool.description}
                       </p>
 
                       {/* Category Tags */}
                       {tool.tags && tool.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 pt-2">
-                          {tool.tags.map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs font-normal">
-                              <Tag className="h-3 w-3 mr-1" />
+                        <div className="flex flex-wrap gap-2">
+                          {tool.tags.slice(0, 5).map((tag, index) => (
+                            <Badge 
+                              key={index} 
+                              variant="secondary" 
+                              className="text-xs font-normal bg-muted/80 hover:bg-muted cursor-default"
+                            >
                               {tag}
                             </Badge>
                           ))}
-                        </div>
-                      )}
-
-                      {/* Quick Stats */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4 border-y">
-                        {tool.pricing && (
-                          <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">Pricing</div>
-                            <div className="font-semibold text-foreground">{tool.pricing}</div>
-                          </div>
-                        )}
-                        {tool.category && (
-                          <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">Category</div>
-                            <div className="font-semibold text-foreground text-sm">{tool.category}</div>
-                          </div>
-                        )}
-                        {tool.features && tool.features.length > 0 && (
-                          <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">Features</div>
-                            <div className="font-semibold text-foreground">{tool.features.length}+</div>
-                          </div>
-                        )}
-                        {tool.badge && (
-                          <div className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">Status</div>
-                            <div className="font-semibold text-primary">{tool.badge}</div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Overview Section */}
-                      {tool.overview && (
-                        <div className="space-y-3">
-                          <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                              <FileText className="h-4 w-4 text-primary" />
-                            </div>
-                            Overview
-                          </h2>
-                          <p className="text-muted-foreground leading-relaxed whitespace-pre-line pl-10">
-                            {tool.overview}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Key Features Section */}
-                      {tool.features && tool.features.length > 0 && (
-                        <div className="space-y-3">
-                          <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-green-500/10">
-                              <Zap className="h-4 w-4 text-green-600" />
-                            </div>
-                            Key Features
-                          </h2>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-10">
-                            {tool.features.map((feature, index) => (
-                              <div 
-                                key={index} 
-                                className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                              >
-                                <div className="mt-0.5 p-1 rounded-full bg-green-500/10">
-                                  <Check className="h-3 w-3 text-green-600" />
-                                </div>
-                                <span className="text-sm text-foreground">{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Real-world Use Cases Section */}
-                      {tool.use_cases && (
-                        <div className="space-y-3">
-                          <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-blue-500/10">
-                              <Target className="h-4 w-4 text-blue-600" />
-                            </div>
-                            Real-world Use Cases
-                          </h2>
-                          <p className="text-muted-foreground leading-relaxed whitespace-pre-line pl-10">
-                            {tool.use_cases}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Who It's Best For Section */}
-                      {tool.best_for && (
-                        <div className="space-y-3">
-                          <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-purple-500/10">
-                              <Users className="h-4 w-4 text-purple-600" />
-                            </div>
-                            Who It's Best For
-                          </h2>
-                          <p className="text-muted-foreground leading-relaxed whitespace-pre-line pl-10">
-                            {tool.best_for}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* FAQs Section */}
-                      {faqs.length > 0 && (
-                        <div className="space-y-3">
-                          <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-amber-500/10">
-                              <HelpCircle className="h-4 w-4 text-amber-600" />
-                            </div>
-                            Frequently Asked Questions
-                          </h2>
-                          <div className="pl-10">
-                            <Accordion type="single" collapsible className="w-full">
-                              {faqs.map((faq: FAQ, index: number) => (
-                                <AccordionItem key={index} value={`faq-${index}`}>
-                                  <AccordionTrigger className="text-left text-sm hover:no-underline">
-                                    {faq.question}
-                                  </AccordionTrigger>
-                                  <AccordionContent className="text-muted-foreground text-sm">
-                                    {faq.answer}
-                                  </AccordionContent>
-                                </AccordionItem>
-                              ))}
-                            </Accordion>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* YouTube Tutorials Section */}
-                      {tool.youtube_tutorials && tool.youtube_tutorials.length > 0 && (
-                        <div className="space-y-3">
-                          <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-red-500/10">
-                              <Youtube className="h-4 w-4 text-red-600" />
-                            </div>
-                            Video Tutorials
-                          </h2>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-10">
-                            {tool.youtube_tutorials.map((url, index) => {
-                              const videoId = url.includes('youtube.com/watch?v=') 
-                                ? url.split('v=')[1]?.split('&')[0]
-                                : url.includes('youtu.be/')
-                                ? url.split('youtu.be/')[1]?.split('?')[0]
-                                : null;
-                              
-                              if (!videoId) return null;
-                              
-                              return (
-                                <div key={index} className="aspect-video rounded-lg overflow-hidden border">
-                                  <iframe
-                                    src={`https://www.youtube.com/embed/${videoId}`}
-                                    title={`${tool.name} Tutorial ${index + 1}`}
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                    className="w-full h-full"
-                                  />
-                                </div>
-                              );
-                            })}
-                          </div>
+                          {tool.tags.length > 5 && (
+                            <Badge variant="secondary" className="text-xs font-normal">
+                              +{tool.tags.length - 5} more
+                            </Badge>
+                          )}
                         </div>
                       )}
                     </CardContent>
                   </Card>
-                </div>
 
-                {/* Sidebar */}
-                <div className="space-y-4">
-                  {/* CTA Card */}
-                  <Card className="sticky top-20">
-                    <CardContent className="p-5">
-                      <div className="flex items-center gap-3 mb-4">
-                        <ToolLogo logo={tool.logo} name={tool.name} />
-                        <div>
-                          <h3 className="font-semibold text-foreground">{tool.name}</h3>
-                          {tool.pricing && (
-                            <span className="text-xs text-muted-foreground">{tool.pricing}</span>
-                          )}
+                  {/* What is [Tool] Section */}
+                  {tool.overview && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">
+                          What is {tool.name}
+                        </h3>
+                        <div className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                          {tool.overview}
                         </div>
-                      </div>
-                      
-                      {tool.website_url && (
-                        <Button asChild className="w-full mb-3">
-                          <a
-                            href={tool.website_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center gap-2"
-                          >
-                            Try {tool.name}
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      )}
-                      
-                      <Button 
-                        variant="outline" 
-                        className="w-full"
-                        onClick={handleSaveClick}
-                      >
-                        <Bookmark className={`h-4 w-4 mr-2 ${isSaved ? 'fill-primary text-primary' : ''}`} />
-                        {isSaved ? 'Saved' : 'Save for Later'}
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Quick Navigation */}
-                  {hasDetailedContent && (
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">On this page</CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <nav className="space-y-1">
-                          {tool.overview && (
-                            <a href="#" className="block text-sm text-foreground hover:text-primary transition-colors py-1">
-                              Overview
-                            </a>
-                          )}
-                          {tool.features && tool.features.length > 0 && (
-                            <a href="#" className="block text-sm text-foreground hover:text-primary transition-colors py-1">
-                              Key Features
-                            </a>
-                          )}
-                          {tool.use_cases && (
-                            <a href="#" className="block text-sm text-foreground hover:text-primary transition-colors py-1">
-                              Use Cases
-                            </a>
-                          )}
-                          {tool.best_for && (
-                            <a href="#" className="block text-sm text-foreground hover:text-primary transition-colors py-1">
-                              Best For
-                            </a>
-                          )}
-                          {faqs.length > 0 && (
-                            <a href="#" className="block text-sm text-foreground hover:text-primary transition-colors py-1">
-                              FAQs
-                            </a>
-                          )}
-                          {tool.youtube_tutorials && tool.youtube_tutorials.length > 0 && (
-                            <a href="#" className="block text-sm text-foreground hover:text-primary transition-colors py-1">
-                              Video Tutorials
-                            </a>
-                          )}
-                        </nav>
                       </CardContent>
                     </Card>
                   )}
 
-                  {/* Share Card */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <p className="text-sm text-muted-foreground mb-2">Share this tool</p>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            navigator.clipboard.writeText(window.location.href);
-                            toast({ title: "Link copied!" });
-                          }}
+                  {/* Use Cases Section */}
+                  {tool.use_cases && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">
+                          Use Cases
+                        </h3>
+                        <div className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                          {tool.use_cases}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Video Tutorial */}
+                  {tool.youtube_tutorials && tool.youtube_tutorials.length > 0 && (
+                    <Card className="border-border/60 overflow-hidden">
+                      <CardContent className="p-0">
+                        {tool.youtube_tutorials.slice(0, 1).map((url, index) => {
+                          const videoId = url.includes('youtube.com/watch?v=') 
+                            ? url.split('v=')[1]?.split('&')[0]
+                            : url.includes('youtu.be/')
+                            ? url.split('youtu.be/')[1]?.split('?')[0]
+                            : null;
+                          
+                          if (!videoId) return null;
+                          
+                          return (
+                            <div key={index} className="aspect-video">
+                              <iframe
+                                src={`https://www.youtube.com/embed/${videoId}`}
+                                title={`${tool.name} Tutorial`}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="w-full h-full"
+                              />
+                            </div>
+                          );
+                        })}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* FAQs Section */}
+                  {faqs.length > 0 && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">
+                          Frequently Asked Questions
+                        </h3>
+                        <Accordion type="single" collapsible className="w-full">
+                          {faqs.map((faq: FAQ, index: number) => (
+                            <AccordionItem key={index} value={`faq-${index}`} className="border-border/60">
+                              <AccordionTrigger className="text-left text-sm font-medium hover:no-underline py-4">
+                                {faq.question}
+                              </AccordionTrigger>
+                              <AccordionContent className="text-muted-foreground text-sm pb-4">
+                                {faq.answer}
+                              </AccordionContent>
+                            </AccordionItem>
+                          ))}
+                        </Accordion>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Related Tools / Alternatives */}
+                  {relatedTools.length > 0 && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-4">
+                          What are {tool.name} alternatives?
+                        </h3>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {relatedTools.map((relatedTool) => (
+                            <Link
+                              key={relatedTool.id}
+                              to={relatedTool.category && relatedTool.slug 
+                                ? `/${getCategorySlug(relatedTool.category)}/${relatedTool.slug}` 
+                                : `/tool/${relatedTool.id}`
+                              }
+                              className="flex items-start gap-3 p-4 rounded-lg border border-border/60 hover:border-primary/30 hover:bg-muted/30 transition-all"
+                            >
+                              <ToolLogo logo={relatedTool.logo} name={relatedTool.name} size="md" />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-foreground text-sm mb-1">{relatedTool.name}</h4>
+                                <p className="text-xs text-muted-foreground line-clamp-2">{relatedTool.description}</p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                {/* Right Column - Sidebar */}
+                <div className="space-y-4">
+                  {/* Core Capabilities */}
+                  {tool.features && tool.features.length > 0 && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-5">
+                        <h4 className="font-semibold text-foreground text-sm mb-4">
+                          {tool.name} Core Capabilities
+                        </h4>
+                        <ul className="space-y-2.5">
+                          {displayedFeatures?.map((feature, index) => (
+                            <li key={index} className="flex items-start gap-2.5">
+                              <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                              <span className="text-sm text-muted-foreground">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        {tool.features.length > 3 && (
+                          <button
+                            onClick={() => setShowAllFeatures(!showAllFeatures)}
+                            className="flex items-center gap-1 text-sm text-primary hover:underline mt-3 font-medium"
+                          >
+                            {showAllFeatures ? (
+                              <>Show Less <ChevronUp className="h-4 w-4" /></>
+                            ) : (
+                              <>Show More <ChevronDown className="h-4 w-4" /></>
+                            )}
+                          </button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Links */}
+                  <Card className="border-border/60">
+                    <CardContent className="p-5">
+                      <h4 className="font-semibold text-foreground text-sm mb-3">Links</h4>
+                      {tool.website_url && (
+                        <a
+                          href={tool.website_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                         >
-                          Copy Link
-                        </Button>
-                      </div>
+                          <Globe className="h-4 w-4" />
+                          Visit Website
+                          <ExternalLink className="h-3 w-3 ml-auto" />
+                        </a>
+                      )}
                     </CardContent>
                   </Card>
 
-                  {/* Related Tools */}
-                  {relatedTools.length > 0 && (
-                    <Card>
-                      <CardHeader className="pb-2">
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-sm font-medium text-muted-foreground">
-                            More {tool.category} Tools
-                          </CardTitle>
-                          <Link 
-                            to={`/categories/${getCategorySlug(tool.category!)}`}
-                            className="text-xs text-primary hover:underline flex items-center gap-1"
-                          >
-                            View all
-                            <ArrowRight className="h-3 w-3" />
-                          </Link>
+                  {/* Pricing */}
+                  {tool.pricing && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-5">
+                        <h4 className="font-semibold text-foreground text-sm mb-3">Pricing</h4>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">From</span>
+                            <span className="font-medium text-foreground">{tool.pricing}</span>
+                          </div>
                         </div>
-                      </CardHeader>
-                      <CardContent className="pt-0 space-y-2">
-                        {relatedTools.slice(0, 4).map((relatedTool) => (
-                          <Link 
-                            key={relatedTool.id} 
-                            to={relatedTool.category && relatedTool.slug 
-                              ? `/${getCategorySlug(relatedTool.category)}/${relatedTool.slug}` 
-                              : `/tool/${relatedTool.id}`
-                            }
-                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
-                          >
-                            <ToolLogo logo={relatedTool.logo} name={relatedTool.name} size="sm" />
-                            <span className="text-sm font-medium text-foreground truncate">{relatedTool.name}</span>
-                          </Link>
-                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Who is it for */}
+                  {tool.best_for && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-5">
+                        <h4 className="font-semibold text-foreground text-sm mb-3">
+                          Who is {tool.name} for?
+                        </h4>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {tool.best_for}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Save Tool CTA */}
+                  <Card className="border-border/60 bg-muted/30">
+                    <CardContent className="p-5">
+                      <Button 
+                        variant={isSaved ? "secondary" : "outline"}
+                        className="w-full"
+                        onClick={handleSaveClick}
+                      >
+                        <Bookmark className={`h-4 w-4 mr-2 ${isSaved ? 'fill-current' : ''}`} />
+                        {isSaved ? 'Saved to Collection' : 'Save for Later'}
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* More Videos */}
+                  {tool.youtube_tutorials && tool.youtube_tutorials.length > 1 && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-5">
+                        <h4 className="font-semibold text-foreground text-sm mb-3 flex items-center gap-2">
+                          <YoutubeIcon className="h-4 w-4 text-red-500" />
+                          More Videos
+                        </h4>
+                        <div className="space-y-2">
+                          {tool.youtube_tutorials.slice(1, 4).map((url, index) => (
+                            <a
+                              key={index}
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              Tutorial {index + 2}
+                            </a>
+                          ))}
+                        </div>
                       </CardContent>
                     </Card>
                   )}

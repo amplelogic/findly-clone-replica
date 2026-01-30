@@ -109,6 +109,25 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    /* Slightly reduce base font size for medium screens (14-15 inch displays) */
+    font-size: 16px;
+  }
+
+  /* Scale down slightly on medium-sized laptop screens */
+  @media (min-width: 1280px) and (max-width: 1536px) {
+    html {
+      font-size: 15px;
+    }
+  }
+
+  /* Further scale for smaller laptop screens */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    html {
+      font-size: 14.5px;
+    }
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
   }
@@ -128,5 +147,10 @@ All colors MUST be HSL.
   /* Focus ring utility */
   .focus-ring {
     @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  /* Container max-width adjustments for better scaling */
+  .container {
+    @apply max-w-7xl;
   }
 }
