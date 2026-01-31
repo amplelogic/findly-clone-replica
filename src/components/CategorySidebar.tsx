@@ -1,4 +1,4 @@
-import { Home, Search, Megaphone, Mail, Share2, BarChart3, PenTool, Target, TrendingUp, MousePointerClick, FileText, Video, Palette, Users, Globe, Smartphone, MessageSquare, Zap, Link2, ShoppingBag, Send } from "lucide-react";
+import { Home, Search, Megaphone, Mail, Share2, BarChart3, PenTool, Target, TrendingUp, MousePointerClick, FileText, Video, Palette, Users, Globe, Smartphone, MessageSquare, Zap, Link2, ShoppingBag, Send, Plus } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -15,7 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 
 const categories = [
-  { name: "All Tools", icon: Home, path: "/" },
+  { name: "All", icon: Home, path: "/" },
   { name: "SEO Tools", icon: Search, path: "/categories/seo-tools" },
   { name: "Social Media Marketing", icon: Share2, path: "/categories/social-media-marketing" },
   { name: "Email Marketing", icon: Mail, path: "/categories/email-marketing" },
@@ -49,17 +49,8 @@ export const CategorySidebar = () => {
   };
   
   return (
-    <Sidebar className="border-r border-border bg-sidebar" collapsible="offcanvas">
-      <SidebarContent className="bg-sidebar">
-        {/* Logo at top */}
-        <div className="p-4 border-b border-sidebar-border">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="bg-foreground text-background px-2.5 py-1.5 rounded font-bold text-sm">
-              MARKETING.TOOLS
-            </div>
-          </Link>
-        </div>
-
+    <Sidebar className="border-r border-border bg-background" collapsible="offcanvas">
+      <SidebarContent className="bg-background pt-4">
         <ScrollArea className="flex-1">
           <SidebarGroup>
             <SidebarGroupContent>
@@ -69,16 +60,16 @@ export const CategorySidebar = () => {
                   const active = isActive(category.path);
                   return (
                     <SidebarMenuItem key={category.path}>
-                      <SidebarMenuButton asChild>
+                      <SidebarMenuButton asChild className="h-10">
                         <Link 
                           to={category.path} 
-                          className={`flex items-center gap-3 transition-colors ${
+                          className={`flex items-center gap-3 px-3 rounded-lg transition-colors ${
                             active 
-                              ? 'bg-primary/10 text-primary font-medium' 
-                              : 'hover:bg-sidebar-accent'
+                              ? 'bg-secondary text-foreground font-medium' 
+                              : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                           }`}
                         >
-                          <Icon className={`h-4 w-4 flex-shrink-0 ${active ? 'text-primary' : ''}`} />
+                          <Icon className="h-4 w-4 flex-shrink-0" />
                           {open && <span className="truncate text-sm">{category.name}</span>}
                         </Link>
                       </SidebarMenuButton>
@@ -92,11 +83,11 @@ export const CategorySidebar = () => {
       </SidebarContent>
 
       {/* Submit Tool button at bottom */}
-      <SidebarFooter className="p-4 border-t border-sidebar-border bg-sidebar">
+      <SidebarFooter className="p-4 border-t border-border bg-background">
         <Link to="/submit">
-          <Button className="w-full" size="sm">
-            <Send className="h-4 w-4 mr-2" />
-            Submit Tool
+          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground" size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            {open && "Submit your tool"}
           </Button>
         </Link>
       </SidebarFooter>
