@@ -7,16 +7,16 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export const SearchBar = ({ value, onChange, placeholder = "Search by name, tags, category..." }: SearchBarProps) => {
+export const SearchBar = ({ value, onChange, placeholder = "Search tools..." }: SearchBarProps) => {
   return (
     <div className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="pl-9 h-9 text-sm"
+        className="pl-11 h-12 bg-card border-border rounded-full text-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary"
       />
     </div>
   );
