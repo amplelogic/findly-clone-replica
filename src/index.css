@@ -110,20 +110,21 @@ All colors MUST be HSL.
   }
 
   html {
+    /* Slightly reduce base font size for medium screens (14-15 inch displays) */
     font-size: 16px;
   }
 
-  /* Subtle scale for medium-sized laptop screens (14-15 inch) */
+  /* Scale down slightly on medium-sized laptop screens */
   @media (min-width: 1280px) and (max-width: 1536px) {
     html {
-      font-size: 15.5px;
+      font-size: 15px;
     }
   }
 
-  /* Slightly smaller for smaller laptops */
+  /* Further scale for smaller laptop screens */
   @media (min-width: 1024px) and (max-width: 1279px) {
     html {
-      font-size: 15px;
+      font-size: 14.5px;
     }
   }
 
