@@ -98,7 +98,7 @@ export const ToolCard = ({ id, name, description, logo, badge, isSaved = false, 
             />
           </button>
         </div>
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-2">
+        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-1.5">
           {description}
         </p>
       </CardContent>
