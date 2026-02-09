@@ -13,7 +13,7 @@ interface ToolCardProps {
 
 export const ToolCard = ({ name, description, logo, badge }: ToolCardProps) => {
   return (
-    <div className="relative flex items-center gap-4 p-4 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer">
+    <div className="relative p-4 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer">
       {/* Badge */}
       {badge && (
         <div className="absolute top-2 right-3">
@@ -34,20 +34,20 @@ export const ToolCard = ({ name, description, logo, badge }: ToolCardProps) => {
         </div>
       )}
 
-      {/* Logo */}
-      <div className="flex-shrink-0">
-        <ToolLogo logo={logo} name={name} size="md" />
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 min-w-0 pr-6">
-        <h3 className="font-semibold text-sm text-foreground truncate mb-0.5">
+      {/* Logo + Title row */}
+      <div className="flex items-center gap-3 mb-1.5">
+        <div className="flex-shrink-0">
+          <ToolLogo logo={logo} name={name} size="md" />
+        </div>
+        <h3 className="font-semibold text-sm text-foreground truncate">
           {name}
         </h3>
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-          {description}
-        </p>
       </div>
+
+      {/* Description - full width below */}
+      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+        {description}
+      </p>
     </div>
   );
 };
