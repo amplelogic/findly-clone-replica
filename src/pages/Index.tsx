@@ -219,7 +219,7 @@ const Index = () => {
             {featuredTools.length > 0 && (
               <section className="px-6 py-8">
                 <h2 className="text-xl font-semibold text-foreground mb-6">Featured Tools</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {featuredTools.map((tool) => (
                     <Link 
                       key={tool.id}
@@ -257,7 +257,7 @@ const Index = () => {
               </div>
               
               {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                   {[...Array(8)].map((_, i) => (
                     <ToolCardSkeleton key={i} />
                   ))}
@@ -268,7 +268,7 @@ const Index = () => {
                 </p>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {displayedTools.map((tool) => (
                       <Link 
                         key={tool.id} 
