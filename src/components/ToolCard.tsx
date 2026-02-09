@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Bookmark } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -64,16 +65,11 @@ export const ToolCard = ({ id, name, description, logo, badge, isSaved = false, 
   };
 
   return (
-    <div className="group flex items-start gap-4 p-4 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer">
-      {/* Logo */}
-      <div className="flex-shrink-0">
-        <ToolLogo logo={logo} name={name} size="md" />
-      </div>
-      
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
+    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer bg-tool-card border-tool-card-border hover:border-primary/20">
+      <CardContent className="p-2.5">
+        <div className="flex items-center gap-2.5">
+          <ToolLogo logo={logo} name={name} size="sm" />
+          <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors flex-1 line-clamp-1">
             {name}
           </h3>
           {badge && (
@@ -92,22 +88,20 @@ export const ToolCard = ({ id, name, description, logo, badge, isSaved = false, 
               {badge}
             </Badge>
           )}
+          <button
+            onClick={handleBookmarkClick}
+            disabled={saving}
+            className="p-1 hover:bg-secondary rounded transition-colors"
+          >
+            <Bookmark 
+              className={`h-4 w-4 ${isSaved ? 'fill-primary text-primary' : 'text-muted-foreground'}`} 
+            />
+          </button>
         </div>
-        <p className="text-sm text-muted-foreground line-clamp-2">
+        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-1.5">
           {description}
         </p>
-      </div>
-
-      {/* Save Button */}
-      <button
-        onClick={handleBookmarkClick}
-        disabled={saving}
-        className="flex-shrink-0 p-1.5 rounded-lg hover:bg-secondary transition-colors opacity-0 group-hover:opacity-100"
-      >
-        <Bookmark 
-          className={`h-4 w-4 ${isSaved ? 'fill-primary text-primary' : 'text-muted-foreground'}`}
-        />
-      </button>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
