@@ -45,7 +45,7 @@ export const ToolCard = ({ name, description, logo, badge }: ToolCardProps) => {
       </div>
 
       {/* Description - full width below */}
-      <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
         {description}
       </p>
     </div>
