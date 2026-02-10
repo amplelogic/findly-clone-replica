@@ -9,7 +9,8 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SEOHead } from "@/components/SEOHead";
-import { User, Heart } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { User, Heart, Sparkles, ArrowRight } from "lucide-react";
 
 const TOOLS_PER_PAGE = 60;
 
@@ -31,6 +32,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [displayCount, setDisplayCount] = useState(TOOLS_PER_PAGE);
+  const [pricingFilter, setPricingFilter] = useState("all");
 
   useEffect(() => {
     checkAuth();
@@ -73,15 +75,30 @@ const Index = () => {
   };
 
   const filteredTools = useMemo(() => {
-    if (!searchQuery.trim()) return tools;
-    const query = searchQuery.toLowerCase();
-    return tools.filter(tool => 
-      tool.name.toLowerCase().includes(query) ||
-      tool.description.toLowerCase().includes(query) ||
-      (tool.category && tool.category.toLowerCase().includes(query)) ||
-      (tool.tags && tool.tags.some(tag => tag.toLowerCase().includes(query)))
-    );
-  }, [tools, searchQuery]);
+    let filtered = tools;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(tool => 
+        tool.name.toLowerCase().includes(query) ||
+        tool.description.toLowerCase().includes(query) ||
+        (tool.category && tool.category.toLowerCase().includes(query)) ||
+        (tool.tags && tool.tags.some(tag => tag.toLowerCase().includes(query)))
+      );
+    }
+    if (pricingFilter !== "all") {
+      filtered = filtered.filter(tool => {
+        const pricing = (tool as any).pricing?.toLowerCase() || "";
+        switch (pricingFilter) {
+          case "free": return pricing.includes("free") && !pricing.includes("freemium") && !pricing.includes("trial");
+          case "paid": return pricing.includes("paid") || (pricing && !pricing.includes("free"));
+          case "freemium": return pricing.includes("freemium");
+          case "free-trial": return pricing.includes("trial");
+          default: return true;
+        }
+      });
+    }
+    return filtered;
+  }, [tools, searchQuery, pricingFilter]);
 
   const displayedTools = filteredTools.slice(0, displayCount);
   const hasMore = displayCount < filteredTools.length;
@@ -108,7 +125,7 @@ const Index = () => {
 
   // Get featured tools (first 4 with badge)
   const featuredTools = tools.filter(t => t.badge).slice(0, 4);
-  const newestTools = filteredTools;
+  const allDisplayTools = filteredTools;
 
   return (
     <>
@@ -170,42 +187,47 @@ const Index = () => {
             </div>
 
             {/* Hero Section */}
-            <section className="relative px-6 py-12 overflow-hidden">
-              {/* Gradient Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/10 to-accent/5" />
-              <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+            <section className="relative px-6 py-16 overflow-hidden">
+              {/* Animated Gradient Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+              <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/8 rounded-full blur-[100px] animate-pulse" />
+              <div className="absolute bottom-0 right-0 w-80 h-80 bg-accent/8 rounded-full blur-[80px]" />
               
               <div className="relative max-w-2xl mx-auto text-center">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-card border border-border rounded-full text-xs font-medium text-muted-foreground mb-6">
-                  <span className="text-foreground font-semibold">DR 75</span>
-                  <span>CERTIFIED DOMAIN RATING</span>
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-xs font-medium text-primary mb-6">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span className="font-semibold">DR 75</span>
+                  <span className="text-primary/70">CERTIFIED DOMAIN RATING</span>
                 </div>
                 
-                <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                  The best tools, all in one place.
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-4 tracking-tight">
+                  The best tools,{" "}
+                  <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    all in one place.
+                  </span>
                 </h1>
-                <p className="text-muted-foreground mb-8">
-                  Discover {tools.length}+ quality tools for your next project.
+                <p className="text-muted-foreground text-lg mb-8 max-w-lg mx-auto">
+                  Discover {tools.length}+ quality marketing tools to grow your business faster.
                 </p>
                 
-                <div className="max-w-md mx-auto mb-6">
-                  <SearchBar 
-                    value={searchQuery} 
-                    onChange={setSearchQuery} 
-                  />
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
+                  <Link to="/submit">
+                    <Button size="lg" className="gap-2 px-6 shadow-lg shadow-primary/20">
+                      Submit your tool
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link to="/resources">
+                    <Button variant="outline" size="lg" className="px-6">
+                      Browse Resources
+                    </Button>
+                  </Link>
                 </div>
                 
-                <Link to="/submit">
-                  <Button className="mb-6">
-                    Submit your tool
-                  </Button>
-                </Link>
-                
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-3">
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="w-8 h-8 rounded-full bg-muted border-2 border-background" />
+                      <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-background" />
                     ))}
                   </div>
                   <span className="text-sm text-muted-foreground">
@@ -218,8 +240,13 @@ const Index = () => {
             {/* Featured Tools */}
             {featuredTools.length > 0 && (
               <section className="px-6 py-8">
-                <h2 className="text-xl font-semibold text-foreground mb-6">Featured Tools</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="flex items-center gap-3 mb-6">
+                  <h2 className="text-xl font-semibold text-foreground">Featured Tools</h2>
+                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
+                    ⭐ Featured
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                   {featuredTools.map((tool) => (
                     <Link 
                       key={tool.id}
@@ -227,33 +254,48 @@ const Index = () => {
                         ? `/${getCategorySlug(tool.category)}/${tool.slug}` 
                         : `/tool/${tool.id}`
                       }
-                      className="group"
                     >
-                      <div className="aspect-video bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg border border-border overflow-hidden mb-3 group-hover:border-primary/30 transition-colors">
-                        {tool.logo && (
-                          <img 
-                            src={tool.logo} 
-                            alt={tool.name}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                      </div>
-                      <h3 className="font-medium text-foreground group-hover:text-primary transition-colors">
-                        {tool.name}
-                      </h3>
+                      <ToolCard
+                        id={tool.id}
+                        name={tool.name}
+                        description={tool.description}
+                        logo={tool.logo}
+                        badge={tool.badge as "New" | "Deal" | "Popular" | "Free" | undefined}
+                        isSaved={savedTools.has(tool.id)}
+                        onSaveToggle={() => handleSaveToggle(tool.id)}
+                      />
                     </Link>
                   ))}
                 </div>
               </section>
             )}
 
-            {/* Newest Additions */}
+            {/* All Tools */}
             <section className="px-6 pb-12 flex-1">
-              <div className="flex items-center gap-3 mb-6">
-                <h2 className="text-xl font-semibold text-foreground">Newest Additions</h2>
-                <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs font-medium rounded">
-                  New
-                </span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-semibold text-foreground">All Tools</h2>
+                  <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs font-medium rounded">
+                    {filteredTools.length}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="flex-1 sm:w-64">
+                    <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search tools..." />
+                  </div>
+                  <Select value={pricingFilter} onValueChange={setPricingFilter}>
+                    <SelectTrigger className="w-[130px] h-10 rounded-full text-sm">
+                      <SelectValue placeholder="Pricing" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Pricing</SelectItem>
+                      <SelectItem value="free">Free</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
+                      <SelectItem value="freemium">Freemium</SelectItem>
+                      <SelectItem value="free-trial">Free Trial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               
               {loading ? (
@@ -262,7 +304,7 @@ const Index = () => {
                     <ToolCardSkeleton key={i} />
                   ))}
                 </div>
-              ) : newestTools.length === 0 ? (
+              ) : allDisplayTools.length === 0 ? (
                 <p className="text-muted-foreground">
                   {searchQuery ? "No tools match your search." : "No tools found. Add some from the admin panel!"}
                 </p>

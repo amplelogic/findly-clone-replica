@@ -9,15 +9,15 @@ interface ToolLogoProps {
 
 export const ToolLogo = ({ logo, name, size = "md", className = "" }: ToolLogoProps) => {
   const sizeClasses = {
-    sm: "w-8 h-8 text-sm",
-    md: "w-10 h-10 text-lg",
-    lg: "w-14 h-14 text-2xl"
+    sm: "w-7 h-7 text-sm",
+    md: "w-8 h-8 text-base",
+    lg: "w-12 h-12 text-xl"
   };
 
   const iconSizeClasses = {
-    sm: "h-4 w-4",
-    md: "h-5 w-5",
-    lg: "h-7 w-7"
+    sm: "h-3.5 w-3.5",
+    md: "h-4 w-4",
+    lg: "h-6 w-6"
   };
 
   // Check if it's a URL (image)
