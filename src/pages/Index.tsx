@@ -284,7 +284,7 @@ const Index = () => {
                     <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search tools..." />
                   </div>
                   <Select value={pricingFilter} onValueChange={setPricingFilter}>
-                    <SelectTrigger className="w-[130px] h-10 rounded-full text-sm">
+                    <SelectTrigger className="w-[130px] h-10 rounded-[5px] text-sm">
                       <SelectValue placeholder="Pricing" />
                     </SelectTrigger>
                     <SelectContent>
