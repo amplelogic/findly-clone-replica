@@ -60,7 +60,7 @@ export const CategorySidebar = () => {
                   const active = isActive(category.path);
                   return (
                     <SidebarMenuItem key={category.path}>
-                      <SidebarMenuButton asChild className="h-10">
+                      <SidebarMenuButton asChild className="h-8">
                         <Link 
                           to={category.path} 
                           className={`flex items-center gap-3 px-3 rounded-lg transition-colors ${
