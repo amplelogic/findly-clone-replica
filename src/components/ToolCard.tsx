@@ -13,7 +13,7 @@ interface ToolCardProps {
 
 export const ToolCard = ({ name, description, logo, badge }: ToolCardProps) => {
   return (
-    <div className="relative p-4 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer">
+    <div className="relative p-3 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer">
       {/* Badge */}
       {badge && (
         <div className="absolute top-2 right-3">
