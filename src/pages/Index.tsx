@@ -24,6 +24,8 @@ interface Tool {
   slug: string | null;
   tags: string[] | null;
   website_url: string | null;
+  pricing: string | null;
+  best_for: string | null;
 }
 
 const Index = () => {
@@ -259,6 +261,9 @@ const Index = () => {
                         badge={tool.badge as "New" | "Deal" | "Popular" | "Free" | undefined}
                         category={tool.category}
                         websiteUrl={tool.website_url}
+                        pricing={tool.pricing}
+                        tags={tool.tags}
+                        bestFor={tool.best_for}
                         isSaved={savedTools.has(tool.id)}
                         onSaveToggle={() => handleSaveToggle(tool.id)}
                       />
@@ -325,6 +330,9 @@ const Index = () => {
                           badge={tool.badge as "New" | "Deal" | "Popular" | "Free" | undefined}
                           category={tool.category}
                           websiteUrl={tool.website_url}
+                          pricing={tool.pricing}
+                          tags={tool.tags}
+                          bestFor={tool.best_for}
                           isSaved={savedTools.has(tool.id)}
                           onSaveToggle={() => handleSaveToggle(tool.id)}
                         />
