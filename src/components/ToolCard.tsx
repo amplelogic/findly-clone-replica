@@ -57,27 +57,6 @@ export const ToolCard = ({ name, description, logo, badge, category, websiteUrl,
           {description}
         </p>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
-          {category ? (
-            <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full truncate max-w-[60%]">
-              {category}
-            </span>
-          ) : (
-            <span />
-          )}
-          {websiteUrl && (
-            <a
-              href={websiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          )}
-        </div>
       </div>
 
       {/* Hover overlay */}
@@ -129,27 +108,6 @@ export const ToolCard = ({ name, description, logo, badge, category, websiteUrl,
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-border">
-          {category ? (
-            <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full truncate max-w-[60%]">
-              {category}
-            </span>
-          ) : (
-            <span />
-          )}
-          {websiteUrl && (
-            <a
-              href={websiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          )}
-        </div>
       </div>
     </div>
   );
