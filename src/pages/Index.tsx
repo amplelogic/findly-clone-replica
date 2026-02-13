@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SEOHead } from "@/components/SEOHead";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Heart, Sparkles, ArrowRight } from "lucide-react";
+import { User, Heart, Sparkles, ArrowRight, ExternalLink } from "lucide-react";
 
 const TOOLS_PER_PAGE = 60;
 
@@ -23,6 +23,7 @@ interface Tool {
   category: string | null;
   slug: string | null;
   tags: string[] | null;
+  website_url: string | null;
 }
 
 const Index = () => {
@@ -187,30 +188,25 @@ const Index = () => {
             </div>
 
             {/* Hero Section */}
-            <section className="relative px-6 py-16 overflow-hidden">
-              {/* Animated Gradient Background */}
+            <section className="relative px-6 py-10 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-              <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/8 rounded-full blur-[100px] animate-pulse" />
-              <div className="absolute bottom-0 right-0 w-80 h-80 bg-accent/8 rounded-full blur-[80px]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-primary/8 rounded-full blur-[100px] animate-pulse" />
               
-              <div className="relative max-w-2xl mx-auto text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-xs font-medium text-primary mb-6">
+              <div className="relative max-w-3xl mx-auto text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-xs font-medium text-primary mb-4">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span className="font-semibold">DR 75</span>
                   <span className="text-primary/70">CERTIFIED DOMAIN RATING</span>
                 </div>
                 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-4 tracking-tight">
-                  The best tools,{" "}
-                  <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                    all in one place.
-                  </span>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-3 tracking-tight whitespace-nowrap">
+                  The best tools, <span className="bg-gradient-to-r from-primary via-purple-400 to-pink-500 bg-clip-text text-transparent italic">all in one place.</span>
                 </h1>
-                <p className="text-muted-foreground text-lg mb-8 max-w-lg mx-auto">
+                <p className="text-muted-foreground text-base mb-6 max-w-lg mx-auto">
                   Discover {tools.length}+ quality marketing tools to grow your business faster.
                 </p>
                 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
                   <Link to="/submit">
                     <Button size="lg" className="gap-2 px-6 shadow-lg shadow-primary/20">
                       Submit your tool
@@ -227,7 +223,7 @@ const Index = () => {
                 <div className="flex items-center justify-center gap-3">
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-background" />
+                      <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-background" />
                     ))}
                   </div>
                   <span className="text-sm text-muted-foreground">
@@ -261,6 +257,8 @@ const Index = () => {
                         description={tool.description}
                         logo={tool.logo}
                         badge={tool.badge as "New" | "Deal" | "Popular" | "Free" | undefined}
+                        category={tool.category}
+                        websiteUrl={tool.website_url}
                         isSaved={savedTools.has(tool.id)}
                         onSaveToggle={() => handleSaveToggle(tool.id)}
                       />
@@ -325,6 +323,8 @@ const Index = () => {
                           description={tool.description}
                           logo={tool.logo}
                           badge={tool.badge as "New" | "Deal" | "Popular" | "Free" | undefined}
+                          category={tool.category}
+                          websiteUrl={tool.website_url}
                           isSaved={savedTools.has(tool.id)}
                           onSaveToggle={() => handleSaveToggle(tool.id)}
                         />
