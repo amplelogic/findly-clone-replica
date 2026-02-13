@@ -16,7 +16,7 @@ export const SearchBar = ({ value, onChange, placeholder = "Search tools..." }: 
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="pl-11 h-12 bg-card border-border rounded-[5px] text-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary"
+        className="pl-11 h-10 bg-card border-border rounded-[5px] text-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary"
       />
     </div>
   );

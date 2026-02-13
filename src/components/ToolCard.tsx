@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { ToolLogo } from "@/components/ToolLogo";
+import { ExternalLink } from "lucide-react";
 
 interface ToolCardProps {
   id?: string;
@@ -7,13 +8,15 @@ interface ToolCardProps {
   description: string;
   logo: string;
   badge?: "New" | "Deal" | "Popular" | "Free";
+  category?: string | null;
+  websiteUrl?: string | null;
   isSaved?: boolean;
   onSaveToggle?: () => void;
 }
 
-export const ToolCard = ({ name, description, logo, badge }: ToolCardProps) => {
+export const ToolCard = ({ name, description, logo, badge, category, websiteUrl }: ToolCardProps) => {
   return (
-    <div className="relative p-3 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer">
+    <div className="relative p-3 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer flex flex-col">
       {/* Badge */}
       {badge && (
         <div className="absolute top-2 right-3">
@@ -44,10 +47,32 @@ export const ToolCard = ({ name, description, logo, badge }: ToolCardProps) => {
         </h3>
       </div>
 
-      {/* Description - full width below */}
-      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+      {/* Description */}
+      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed flex-1">
         {description}
       </p>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
+        {category ? (
+          <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full truncate max-w-[60%]">
+            {category}
+          </span>
+        ) : (
+          <span />
+        )}
+        {websiteUrl && (
+          <a
+            href={websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-muted-foreground hover:text-primary transition-colors"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        )}
+      </div>
     </div>
   );
 };
