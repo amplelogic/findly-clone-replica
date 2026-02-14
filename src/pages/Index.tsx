@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SEOHead } from "@/components/SEOHead";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Heart, Sparkles, ArrowRight, ExternalLink } from "lucide-react";
+import { User, Heart, Sparkles, ArrowRight, ExternalLink, Menu } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const TOOLS_PER_PAGE = 60;
 
@@ -142,11 +143,14 @@ const Index = () => {
           <main className="flex-1 w-full flex flex-col">
             {/* Top Bar */}
             <header className="flex items-center justify-between px-6 py-4 border-b border-border">
-              <Link to="/">
-                <div className="bg-foreground text-background px-3 py-1.5 rounded font-bold text-sm">
-                  MARKETING.TOOLS
-                </div>
-              </Link>
+              <div className="flex items-center gap-2">
+                <SidebarTrigger className="md:hidden" />
+                <Link to="/">
+                  <div className="bg-foreground text-background px-3 py-1.5 rounded font-bold text-sm">
+                    MARKETING.TOOLS
+                  </div>
+                </Link>
+              </div>
               <div className="flex items-center gap-3">
                 {user ? (
                   <>
