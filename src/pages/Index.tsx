@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SEOHead } from "@/components/SEOHead";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Heart, Sparkles, ArrowRight, ExternalLink, Menu } from "lucide-react";
+import { User, Heart, Sparkles, ArrowRight, ExternalLink } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const TOOLS_PER_PAGE = 60;
@@ -25,6 +25,7 @@ interface Tool {
   slug: string | null;
   tags: string[] | null;
   website_url: string | null;
+  pricing: string | null;
 }
 
 const Index = () => {
@@ -89,7 +90,7 @@ const Index = () => {
     }
     if (pricingFilter !== "all") {
       filtered = filtered.filter(tool => {
-        const pricing = (tool as any).pricing?.toLowerCase() || "";
+        const pricing = tool.pricing?.toLowerCase() || "";
         switch (pricingFilter) {
           case "free": return pricing.includes("free") && !pricing.includes("freemium") && !pricing.includes("trial");
           case "paid": return pricing.includes("paid") || (pricing && !pricing.includes("free"));
@@ -125,9 +126,12 @@ const Index = () => {
     return category.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "");
   };
 
-  // Get featured tools (first 4 with badge)
   const featuredTools = tools.filter(t => t.badge).slice(0, 4);
   const allDisplayTools = filteredTools;
+
+  const PricingDot = ({ color }: { color: string }) => (
+    <span className={`inline-block w-2 h-2 rounded-full ${color} mr-1.5`} />
+  );
 
   return (
     <>
@@ -203,11 +207,12 @@ const Index = () => {
                   <span className="text-primary/70">CERTIFIED DOMAIN RATING</span>
                 </div>
                 
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-3 tracking-tight whitespace-nowrap">
-                  The best tools, <span className="bg-gradient-to-r from-primary via-purple-400 to-pink-500 bg-clip-text text-transparent italic">all in one place.</span>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-3 tracking-tight">
+                  <span className="whitespace-nowrap">The best tools,</span>{" "}
+                  <span className="bg-gradient-to-r from-primary via-purple-400 to-pink-500 bg-clip-text text-transparent italic whitespace-nowrap">all in one place.</span>
                 </h1>
-                <p className="text-muted-foreground text-base mb-6 max-w-lg mx-auto">
-                  Discover {tools.length}+ quality marketing tools to grow your business faster.
+                <p className="text-muted-foreground text-sm sm:text-base mb-6 max-w-2xl mx-auto">
+                  Explore 1200+ marketing tools in 200+ categories, updated regularly to help you find the best tools for SEO, ads, content, automation, and growth.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
@@ -263,6 +268,7 @@ const Index = () => {
                         badge={tool.badge as "New" | "Deal" | "Popular" | "Free" | undefined}
                         category={tool.category}
                         websiteUrl={tool.website_url}
+                        pricing={tool.pricing}
                         isSaved={savedTools.has(tool.id)}
                         onSaveToggle={() => handleSaveToggle(tool.id)}
                       />
@@ -291,10 +297,18 @@ const Index = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Pricing</SelectItem>
-                      <SelectItem value="free">Free</SelectItem>
-                      <SelectItem value="paid">Paid</SelectItem>
-                      <SelectItem value="freemium">Freemium</SelectItem>
-                      <SelectItem value="free-trial">Free Trial</SelectItem>
+                      <SelectItem value="free">
+                        <span className="flex items-center"><PricingDot color="bg-green-500" />Free</span>
+                      </SelectItem>
+                      <SelectItem value="paid">
+                        <span className="flex items-center"><PricingDot color="bg-red-500" />Paid</span>
+                      </SelectItem>
+                      <SelectItem value="freemium">
+                        <span className="flex items-center"><PricingDot color="bg-yellow-500" />Freemium</span>
+                      </SelectItem>
+                      <SelectItem value="free-trial">
+                        <span className="flex items-center"><PricingDot color="bg-blue-500" />Free Trial</span>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -329,6 +343,7 @@ const Index = () => {
                           badge={tool.badge as "New" | "Deal" | "Popular" | "Free" | undefined}
                           category={tool.category}
                           websiteUrl={tool.website_url}
+                          pricing={tool.pricing}
                           isSaved={savedTools.has(tool.id)}
                           onSaveToggle={() => handleSaveToggle(tool.id)}
                         />

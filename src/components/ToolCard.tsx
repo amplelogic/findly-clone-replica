@@ -10,13 +10,26 @@ interface ToolCardProps {
   badge?: "New" | "Deal" | "Popular" | "Free";
   category?: string | null;
   websiteUrl?: string | null;
+  pricing?: string | null;
   isSaved?: boolean;
   onSaveToggle?: () => void;
 }
 
-export const ToolCard = ({ name, description, logo, badge, category, websiteUrl }: ToolCardProps) => {
+const getPricingColor = (pricing?: string | null) => {
+  if (!pricing) return { dot: "bg-gray-400", border: "hover:border-gray-400", bg: "hover:shadow-gray-400/20" };
+  const p = pricing.toLowerCase();
+  if (p.includes("freemium")) return { dot: "bg-yellow-500", border: "hover:border-yellow-500", bg: "hover:shadow-yellow-500/20" };
+  if (p.includes("trial")) return { dot: "bg-blue-500", border: "hover:border-blue-500", bg: "hover:shadow-blue-500/20" };
+  if (p.includes("free")) return { dot: "bg-green-500", border: "hover:border-green-500", bg: "hover:shadow-green-500/20" };
+  if (p.includes("paid") || pricing) return { dot: "bg-red-500", border: "hover:border-red-500", bg: "hover:shadow-red-500/20" };
+  return { dot: "bg-gray-400", border: "hover:border-gray-400", bg: "hover:shadow-gray-400/20" };
+};
+
+export const ToolCard = ({ name, description, logo, badge, category, websiteUrl, pricing }: ToolCardProps) => {
+  const colors = getPricingColor(pricing);
+
   return (
-    <div className="relative p-3 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer flex flex-col">
+    <div className={`relative p-3 bg-card border border-border rounded-xl transition-all duration-300 cursor-pointer flex flex-col hover:shadow-md ${colors.border} ${colors.bg}`}>
       {/* Badge */}
       {badge && (
         <div className="absolute top-2 right-3">
@@ -42,13 +55,14 @@ export const ToolCard = ({ name, description, logo, badge, category, websiteUrl 
         <div className="flex-shrink-0">
           <ToolLogo logo={logo} name={name} size="md" />
         </div>
-        <h3 className="font-semibold text-sm text-foreground truncate">
+        <h3 className="font-semibold text-[15px] text-foreground truncate flex items-center gap-1.5">
           {name}
+          <span className={`inline-block w-2 h-2 rounded-full ${colors.dot} flex-shrink-0`} />
         </h3>
       </div>
 
       {/* Description */}
-      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed flex-1">
+      <p className="text-[13px] text-muted-foreground line-clamp-2 leading-relaxed flex-1">
         {description}
       </p>
 
@@ -76,3 +90,5 @@ export const ToolCard = ({ name, description, logo, badge, category, websiteUrl 
     </div>
   );
 };
+
+export { getPricingColor };
