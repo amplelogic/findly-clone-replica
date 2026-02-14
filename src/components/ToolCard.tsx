@@ -10,19 +10,16 @@ interface ToolCardProps {
   badge?: "New" | "Deal" | "Popular" | "Free";
   category?: string | null;
   websiteUrl?: string | null;
-  pricing?: string | null;
-  tags?: string[] | null;
-  bestFor?: string | null;
   isSaved?: boolean;
   onSaveToggle?: () => void;
 }
 
-export const ToolCard = ({ name, description, logo, badge, category, websiteUrl, pricing, tags, bestFor }: ToolCardProps) => {
+export const ToolCard = ({ name, description, logo, badge, category, websiteUrl }: ToolCardProps) => {
   return (
-    <div className="relative p-3 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer flex flex-col h-[140px] group overflow-hidden">
+    <div className="relative p-3 bg-card border border-border rounded-xl hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer flex flex-col">
       {/* Badge */}
       {badge && (
-        <div className="absolute top-2 right-3 z-10">
+        <div className="absolute top-2 right-3">
           <Badge
             variant="secondary"
             className={
@@ -40,74 +37,41 @@ export const ToolCard = ({ name, description, logo, badge, category, websiteUrl,
         </div>
       )}
 
-      {/* Default content */}
-      <div className="flex flex-col flex-1 min-h-0">
-        {/* Logo + Title row */}
-        <div className="flex items-center gap-3 mb-1.5">
-          <div className="flex-shrink-0">
-            <ToolLogo logo={logo} name={name} size="md" />
-          </div>
-          <h3 className="font-semibold text-sm text-foreground truncate">
-            {name}
-          </h3>
+      {/* Logo + Title row */}
+      <div className="flex items-center gap-3 mb-1.5">
+        <div className="flex-shrink-0">
+          <ToolLogo logo={logo} name={name} size="md" />
         </div>
-
-        {/* Description */}
-        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed flex-1">
-          {description}
-        </p>
-
+        <h3 className="font-semibold text-sm text-foreground truncate">
+          {name}
+        </h3>
       </div>
 
-      {/* Hover overlay */}
-      <div className="absolute inset-0 bg-card/95 backdrop-blur-sm rounded-xl p-3 flex flex-col opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
-        {/* Title stays visible */}
-        <div className="flex items-center gap-3 mb-2">
-          <div className="flex-shrink-0">
-            <ToolLogo logo={logo} name={name} size="md" />
-          </div>
-          <h3 className="font-semibold text-sm text-foreground truncate">
-            {name}
-          </h3>
-        </div>
+      {/* Description */}
+      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed flex-1">
+        {description}
+      </p>
 
-        {/* Hover details */}
-        <div className="flex flex-col gap-1.5 flex-1 min-h-0 overflow-hidden">
-          {/* Best For / Main Purpose */}
-          {bestFor && (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full truncate">
-                {bestFor}
-              </span>
-            </div>
-          )}
-
-          {/* Pricing */}
-          {pricing && (
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-medium text-muted-foreground">Pricing:</span>
-              <span className="text-[10px] font-semibold text-foreground">{pricing}</span>
-            </div>
-          )}
-
-          {/* Tags */}
-          {tags && tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-auto">
-              {tags.slice(0, 3).map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[9px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded"
-                >
-                  {tag}
-                </span>
-              ))}
-              {tags.length > 3 && (
-                <span className="text-[9px] text-muted-foreground">+{tags.length - 3}</span>
-              )}
-            </div>
-          )}
-        </div>
-
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
+        {category ? (
+          <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full truncate max-w-[60%]">
+            {category}
+          </span>
+        ) : (
+          <span />
+        )}
+        {websiteUrl && (
+          <a
+            href={websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-muted-foreground hover:text-primary transition-colors"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        )}
       </div>
     </div>
   );
